@@ -1,2 +1,2 @@
 # Princiv
-A legal context engine for regulated AI agents
+A Legal Context Engine for Regulated AI Agents
