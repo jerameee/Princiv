@@ -1,0 +1,1765 @@
+@prefix : <http://ssa.gov/disability/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix lkif: <http://www.estrellaproject.org/lkif-core/> .
+@prefix frbr: <http://purl.org/vocab/frbr/core#> .
+@prefix akn: <http://docs.oasis-open.org/legaldocml/ns/akn/3.0#> .
+@prefix sali: <http://www.legalmatters.org/ns/sali#> .
+
+<http://ssa.gov/disability/ontology> a owl:Ontology ;
+    dct:title "Social Security Disability Ontology (SSI/SSDI)" ;
+    dct:description "Comprehensive OWL ontology for SSI and SSDI adjudication with temporal versioning, evidence hierarchy, and complex rule modeling" ;
+    dct:created "2026-02-09"^^xsd:date ;
+    owl:versionInfo "2.0" ;
+    rdfs:comment "Integrates FRBR, LKIF, Akoma Ntoso, and SALI standards for hybrid documentary-normative-practical modeling" .
+
+# =============================================================================
+# UPPER LEVEL CLASSES (Foundational Layer)
+# =============================================================================
+
+:LegalEntity a owl:Class ;
+    rdfs:label "Legal Entity" ;
+    rdfs:comment "Top-level class for all entities recognized by SSA disability law" .
+
+:Agent a owl:Class ;
+    rdfs:subClassOf :LegalEntity ;
+    rdfs:label "Agent" ;
+    rdfs:comment "A person or organization that can take actions or hold legal status" .
+
+:Document a owl:Class ;
+    rdfs:subClassOf :LegalEntity ;
+    rdfs:label "Document" ;
+    rdfs:comment "Any recorded information, including legal authorities and evidence" .
+
+:Event a owl:Class ;
+    rdfs:subClassOf :LegalEntity ;
+    rdfs:label "Event" ;
+    rdfs:comment "A temporal occurrence relevant to disability adjudication" .
+
+:Concept a owl:Class ;
+    rdfs:subClassOf :LegalEntity ;
+    rdfs:label "Concept" ;
+    rdfs:comment "Abstract legal or medical concepts (impairments, capacities, standards)" .
+
+:TemporalEntity a owl:Class ;
+    rdfs:subClassOf :LegalEntity ;
+    rdfs:label "Temporal Entity" ;
+    rdfs:comment "Time intervals, dates, and temporal relationships" .
+
+# =============================================================================
+# DOCUMENTARY LAYER (Hierarchy of Authority with Temporal Versioning)
+# =============================================================================
+
+## Core Documentary Classes
+
+:LegalAuthority a owl:Class ;
+    rdfs:subClassOf :Document ;
+    rdfs:label "Legal Authority" ;
+    rdfs:comment "Any source that has binding or persuasive authority in disability adjudication" .
+
+:Statute a owl:Class ;
+    rdfs:subClassOf :LegalAuthority, akn:Act ;
+    rdfs:label "Statute" ;
+    rdfs:comment "Federal statute (Social Security Act, 42 U.S.C.)" .
+
+:Regulation a owl:Class ;
+    rdfs:subClassOf :LegalAuthority ;
+    rdfs:label "Regulation" ;
+    rdfs:comment "Code of Federal Regulations provisions (20 C.F.R. Parts 404, 416)" .
+
+:AdministrativeGuidance a owl:Class ;
+    rdfs:subClassOf :LegalAuthority ;
+    rdfs:label "Administrative Guidance" ;
+    rdfs:comment "SSA-issued interpretive documents (SSRs, HALLEX, POMS)" .
+
+:SocialSecurityRuling a owl:Class ;
+    rdfs:subClassOf :AdministrativeGuidance ;
+    rdfs:label "Social Security Ruling (SSR)" ;
+    rdfs:comment "Binding policy interpretation issued by SSA, published in Federal Register" .
+
+:HALLEX a owl:Class ;
+    rdfs:subClassOf :AdministrativeGuidance ;
+    rdfs:label "HALLEX" ;
+    rdfs:comment "Hearings, Appeals, and Litigation Law Manual - procedural guidance for OHO" .
+
+:POMS a owl:Class ;
+    rdfs:subClassOf :AdministrativeGuidance ;
+    rdfs:label "Program Operations Manual System (POMS)" ;
+    rdfs:comment "Internal manual for field office operations, lower authority than regulations" .
+
+:JudicialOpinion a owl:Class ;
+    rdfs:subClassOf :LegalAuthority ;
+    rdfs:label "Judicial Opinion" ;
+    rdfs:comment "Federal court decision reviewing SSA determinations" .
+
+:CircuitCourtOpinion a owl:Class ;
+    rdfs:subClassOf :JudicialOpinion ;
+    rdfs:label "Circuit Court Opinion" ;
+    rdfs:comment "Binding precedent within the circuit" .
+
+:SupremeCourtOpinion a owl:Class ;
+    rdfs:subClassOf :JudicialOpinion ;
+    rdfs:label "Supreme Court Opinion" ;
+    rdfs:comment "Binding precedent nationwide" .
+
+## Temporal Versioning System (CRITICAL ADDITION)
+
+:VersionedAuthority a owl:Class ;
+    rdfs:subClassOf :LegalAuthority ;
+    rdfs:label "Versioned Authority" ;
+    rdfs:comment "A specific edition or version of a legal authority with effective dates" .
+
+:AuthorityVersion a owl:Class ;
+    rdfs:label "Authority Version" ;
+    rdfs:comment "Represents a specific temporal version of a regulation, listing, or ruling" .
+
+# Properties for temporal versioning
+
+:isVersionOf a owl:ObjectProperty ;
+    rdfs:domain :AuthorityVersion ;
+    rdfs:range :LegalAuthority ;
+    rdfs:label "is version of" ;
+    rdfs:comment "Links a version to its parent authority" .
+
+:hasVersion a owl:ObjectProperty ;
+    rdfs:domain :LegalAuthority ;
+    rdfs:range :AuthorityVersion ;
+    owl:inverseOf :isVersionOf ;
+    rdfs:label "has version" .
+
+:effectiveFrom a owl:DatatypeProperty ;
+    rdfs:domain :AuthorityVersion ;
+    rdfs:range xsd:date ;
+    rdfs:label "effective from" ;
+    rdfs:comment "Date this version became effective" .
+
+:effectiveUntil a owl:DatatypeProperty ;
+    rdfs:domain :AuthorityVersion ;
+    rdfs:range xsd:date ;
+    rdfs:label "effective until" ;
+    rdfs:comment "Date this version ceased to be effective (blank if still in effect)" .
+
+:appliesRetroactively a owl:DatatypeProperty ;
+    rdfs:domain :AuthorityVersion ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "applies retroactively" ;
+    rdfs:comment "Whether this version applies to claims with earlier onset dates" .
+
+:supersedes a owl:ObjectProperty ;
+    rdfs:domain :AuthorityVersion ;
+    rdfs:range :AuthorityVersion ;
+    rdfs:label "supersedes" ;
+    rdfs:comment "This version replaces a previous version" .
+
+:amendedBy a owl:ObjectProperty ;
+    rdfs:domain :LegalAuthority ;
+    rdfs:range :LegalAuthority ;
+    rdfs:label "amended by" ;
+    rdfs:comment "Authority modified by another authority" .
+
+## Documentary Hierarchy Properties
+
+:implements a owl:ObjectProperty ;
+    rdfs:domain :Regulation ;
+    rdfs:range :Statute ;
+    rdfs:label "implements" ;
+    rdfs:comment "Regulation operationalizes statutory provision" .
+
+:interprets a owl:ObjectProperty ;
+    rdfs:domain :AdministrativeGuidance ;
+    rdfs:range [ a owl:Class ; owl:unionOf ( :Statute :Regulation ) ] ;
+    rdfs:label "interprets" ;
+    rdfs:comment "Guidance explains meaning of statute or regulation" .
+
+:binds a owl:ObjectProperty ;
+    rdfs:domain :LegalAuthority ;
+    rdfs:range :Agent ;
+    rdfs:label "binds" ;
+    rdfs:comment "Authority is binding on specific class of agents" .
+
+:hasBindingForce a owl:DatatypeProperty ;
+    rdfs:domain :LegalAuthority ;
+    rdfs:range xsd:string ;
+    rdfs:label "has binding force" ;
+    rdfs:comment "Level of authority: mandatory, binding, persuasive, internal" .
+
+:hasCitation a owl:DatatypeProperty ;
+    rdfs:domain :LegalAuthority ;
+    rdfs:range xsd:string ;
+    rdfs:label "has citation" ;
+    rdfs:comment "Standard legal citation (e.g., '20 C.F.R. § 404.1520')" .
+
+# =============================================================================
+# NORMATIVE LAYER (Sequential Evaluation Process & Rules)
+# =============================================================================
+
+## Evaluation Framework
+
+:EvaluationProcess a owl:Class ;
+    rdfs:subClassOf lkif:Process ;
+    rdfs:label "Evaluation Process" ;
+    rdfs:comment "The structured decision-making process for disability determination" .
+
+:SequentialEvaluation a owl:Class ;
+    rdfs:subClassOf :EvaluationProcess ;
+    rdfs:label "Sequential Evaluation" ;
+    rdfs:comment "The 5-step process mandated by 20 C.F.R. § 404.1520" .
+
+:EvaluationStep a owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Evaluation Step" ;
+    rdfs:comment "Individual step in the sequential evaluation" .
+
+:Step1_SGA a owl:Class ;
+    rdfs:subClassOf :EvaluationStep ;
+    rdfs:label "Step 1: Substantial Gainful Activity" ;
+    rdfs:comment "Determination of whether claimant is engaging in SGA" .
+
+:Step2_Severity a owl:Class ;
+    rdfs:subClassOf :EvaluationStep ;
+    rdfs:label "Step 2: Severity" ;
+    rdfs:comment "Whether impairment is severe (more than minimal limitation)" .
+
+:Step3_ListingsOrEquivalence a owl:Class ;
+    rdfs:subClassOf :EvaluationStep ;
+    rdfs:label "Step 3: Listings or Medical Equivalence" ;
+    rdfs:comment "Whether impairment meets or equals a listed impairment" .
+
+:Step4_PastRelevantWork a owl:Class ;
+    rdfs:subClassOf :EvaluationStep ;
+    rdfs:label "Step 4: Past Relevant Work" ;
+    rdfs:comment "Whether claimant can perform past relevant work given RFC" .
+
+:Step5_OtherWork a owl:Class ;
+    rdfs:subClassOf :EvaluationStep ;
+    rdfs:label "Step 5: Other Work in National Economy" ;
+    rdfs:comment "Whether claimant can adjust to other work" .
+
+## Rules & Norms
+
+:DisabilityRule a owl:Class ;
+    rdfs:subClassOf lkif:Norm ;
+    rdfs:label "Disability Rule" ;
+    rdfs:comment "A rule that produces a legal conclusion in disability adjudication" .
+
+:DefeasibleRule a owl:Class ;
+    rdfs:subClassOf :DisabilityRule ;
+    rdfs:label "Defeasible Rule" ;
+    rdfs:comment "A rule that applies unless an exception is met" .
+
+:ConclussivePresumption a owl:Class ;
+    rdfs:subClassOf :DisabilityRule ;
+    rdfs:label "Conclusive Presumption" ;
+    rdfs:comment "A rule that mandates a finding (e.g., meeting a Listing)" .
+
+:RebuttablePresumption a owl:Class ;
+    rdfs:subClassOf :DisabilityRule ;
+    rdfs:label "Rebuttable Presumption" ;
+    rdfs:comment "A presumed finding that can be overcome by contrary evidence" .
+
+## Grid Rules (Medical-Vocational Guidelines)
+
+:GridRule a owl:Class ;
+    rdfs:subClassOf :RebuttablePresumption ;
+    rdfs:label "Grid Rule" ;
+    rdfs:comment "Medical-Vocational Guideline from 20 C.F.R. Part 404, Subpart P, Appendix 2" .
+
+:GridRuleApplication a owl:Class ;
+    rdfs:label "Grid Rule Application" ;
+    rdfs:comment "Instance of applying a Grid rule to a specific claim" .
+
+# Grid Rule Properties
+
+:appliesWhen a owl:ObjectProperty ;
+    rdfs:domain :GridRule ;
+    rdfs:range :VocationalProfile ;
+    rdfs:label "applies when" ;
+    rdfs:comment "Conditions under which this Grid rule is applicable" .
+
+:mandatesOutcome a owl:ObjectProperty ;
+    rdfs:domain :GridRule ;
+    rdfs:range :DisabilityFinding ;
+    rdfs:label "mandates outcome" ;
+    rdfs:comment "The finding directed by this Grid rule" .
+
+:hasPresumptiveOutcome a owl:ObjectProperty ;
+    rdfs:domain :GridRuleApplication ;
+    rdfs:range :DisabilityFinding ;
+    rdfs:label "has presumptive outcome" ;
+    rdfs:comment "Grid-directed finding (may be rebutted)" .
+
+:isRebutted a owl:DatatypeProperty ;
+    rdfs:domain :GridRuleApplication ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is rebutted" ;
+    rdfs:comment "Whether vocational expert testimony contradicts Grid outcome" .
+
+:deviationReason a owl:DatatypeProperty ;
+    rdfs:domain :GridRuleApplication ;
+    rdfs:range xsd:string ;
+    rdfs:label "deviation reason" ;
+    rdfs:comment "Explanation for departing from Grid-directed finding" .
+
+# Grid Rule Individuals (Sample - would expand to full set)
+
+:Rule_201.06 a :GridRule ;
+    rdfs:label "Grid Rule 201.06" ;
+    :hasCitation "20 C.F.R. Part 404, Subpart P, App. 2, Rule 201.06" ;
+    :appliesWhen [
+        a :VocationalProfile ;
+        :requiresAgeCategory :AdvancedAge ;
+        :requiresEducation :LimitedEducation ;
+        :requiresSkillLevel :Unskilled ;
+        :requiresRFCLevel :SedentaryRFC
+    ] ;
+    :mandatesOutcome :FindingDisabled .
+
+:Rule_202.01 a :GridRule ;
+    rdfs:label "Grid Rule 202.01" ;
+    :hasCitation "20 C.F.R. Part 404, Subpart P, App. 2, Rule 202.01" ;
+    :appliesWhen [
+        a :VocationalProfile ;
+        :requiresAgeCategory :YoungerPerson ;
+        :requiresEducation :LimitedEducation ;
+        :requiresSkillLevel :Unskilled ;
+        :requiresRFCLevel :SedentaryRFC
+    ] ;
+    :mandatesOutcome :FindingNotDisabled .
+
+## Listings (Medical Criteria)
+
+:Listing a owl:Class ;
+    rdfs:subClassOf :ConclussivePresumption ;
+    rdfs:label "Listing of Impairments" ;
+    rdfs:comment "Specific medical criteria in the Blue Book (Part A for adults, Part B for children)" .
+
+:ListingCriterion a owl:Class ;
+    rdfs:label "Listing Criterion" ;
+    rdfs:comment "Individual requirement within a Listing" .
+
+:MandatoryCriterion a owl:Class ;
+    rdfs:subClassOf :ListingCriterion ;
+    rdfs:label "Mandatory Criterion" ;
+    rdfs:comment "Must be satisfied to meet the Listing" .
+
+:AlternativeCriterion a owl:Class ;
+    rdfs:subClassOf :ListingCriterion ;
+    rdfs:label "Alternative Criterion" ;
+    rdfs:comment "One of several options that can satisfy the Listing" .
+
+# Listing Properties
+
+:requiresCriterion a owl:ObjectProperty ;
+    rdfs:domain :Listing ;
+    rdfs:range :ListingCriterion ;
+    rdfs:label "requires criterion" .
+
+:requiresCombination a owl:ObjectProperty ;
+    rdfs:domain :Listing ;
+    rdfs:range :CriterionCombination ;
+    rdfs:label "requires combination" ;
+    rdfs:comment "Complex boolean combination of criteria" .
+
+:CriterionCombination a owl:Class ;
+    rdfs:label "Criterion Combination" ;
+    rdfs:comment "Boolean logic expression of Listing criteria" .
+
+:hasLogicOperator a owl:DatatypeProperty ;
+    rdfs:domain :CriterionCombination ;
+    rdfs:range xsd:string ;
+    rdfs:label "has logic operator" ;
+    rdfs:comment "AND, OR, NOT for boolean combinations" .
+
+:includes a owl:ObjectProperty ;
+    rdfs:domain :CriterionCombination ;
+    rdfs:range :ListingCriterion ;
+    rdfs:label "includes" .
+
+# Sample Listing Definition (Listing 1.15 - Disorders of the skeletal spine)
+
+:Listing_1_15 a :Listing ;
+    rdfs:label "Listing 1.15: Disorders of the skeletal spine" ;
+    :hasCitation "20 C.F.R. Part 404, Subpart P, App. 1, § 1.15" ;
+    :hasBodySystem :Musculoskeletal ;
+    :requiresCombination [
+        a :CriterionCombination ;
+        :hasLogicOperator "AND" ;
+        :includes :Criterion_1_15_A ;  # Neuro-anatomic distribution of pain
+        :includes :Criterion_1_15_B ;  # Spinal arachnoiditis or lumbar spinal stenosis
+        :includes :Criterion_1_15_C    # Inflammatory arthritis
+    ] .
+
+:Criterion_1_15_A a :MandatoryCriterion ;
+    rdfs:label "Nerve root compression with pain and limitation of motion" ;
+    :requiresFindings [
+        :NerveRootCompression ;
+        :MotorLoss ;
+        :SensoryLoss ;
+        :ReflexLoss
+    ] .
+
+# Listing versioning example
+
+:Listing_1_04_2014Edition a :AuthorityVersion ;
+    :isVersionOf :Listing_1_04 ;
+    :effectiveFrom "2014-02-19"^^xsd:date ;
+    :effectiveUntil "2021-04-02"^^xsd:date ;
+    rdfs:comment "Older edition of Listing 1.04 for disorders of the spine" .
+
+:Listing_1_04_2021Edition a :AuthorityVersion ;
+    :isVersionOf :Listing_1_04 ;
+    :effectiveFrom "2021-04-02"^^xsd:date ;
+    :supersedes :Listing_1_04_2014Edition ;
+    rdfs:comment "Current edition - restructured criteria" .
+
+# =============================================================================
+# RESIDUAL FUNCTIONAL CAPACITY (RFC) - WITH FUZZY LOGIC
+# =============================================================================
+
+:ResidualFunctionalCapacity a owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Residual Functional Capacity (RFC)" ;
+    rdfs:comment "What a claimant can still do despite impairments (20 C.F.R. § 404.1545)" .
+
+:ExertionalRFC a owl:Class ;
+    rdfs:subClassOf :ResidualFunctionalCapacity ;
+    rdfs:label "Exertional RFC" ;
+    rdfs:comment "Physical capacity related to strength (lift, carry, stand, walk, sit)" .
+
+:NonExertionalRFC a owl:Class ;
+    rdfs:subClassOf :ResidualFunctionalCapacity ;
+    rdfs:label "Non-Exertional RFC" ;
+    rdfs:comment "Mental, sensory, environmental, manipulative limitations" .
+
+## Exertional Levels (Standard Categories)
+
+:ExertionalLevel a owl:Class ;
+    rdfs:label "Exertional Level" ;
+    rdfs:comment "Standard work exertion categories from 20 C.F.R. § 404.1567" .
+
+:SedentaryRFC a owl:Class ;
+    rdfs:subClassOf :ExertionalLevel ;
+    rdfs:label "Sedentary" ;
+    rdfs:comment "Lift 10 lbs occasionally, sit 6 hours, stand/walk 2 hours" .
+
+:LightRFC a owl:Class ;
+    rdfs:subClassOf :ExertionalLevel ;
+    rdfs:label "Light" ;
+    rdfs:comment "Lift 20 lbs occasionally, 10 lbs frequently, stand/walk 6 hours" .
+
+:MediumRFC a owl:Class ;
+    rdfs:subClassOf :ExertionalLevel ;
+    rdfs:label "Medium" ;
+    rdfs:comment "Lift 50 lbs occasionally, 25 lbs frequently" .
+
+:HeavyRFC a owl:Class ;
+    rdfs:subClassOf :ExertionalLevel ;
+    rdfs:label "Heavy" ;
+    rdfs:comment "Lift 100 lbs occasionally, 50 lbs frequently" .
+
+:VeryHeavyRFC a owl:Class ;
+    rdfs:subClassOf :ExertionalLevel ;
+    rdfs:label "Very Heavy" ;
+    rdfs:comment "Lift more than 100 lbs occasionally, more than 50 lbs frequently" .
+
+## Functional Limitations (Granular Modeling)
+
+:FunctionalLimitation a owl:Class ;
+    rdfs:label "Functional Limitation" ;
+    rdfs:comment "Specific restriction on physical or mental capacity" .
+
+:LiftingCapacity a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Lifting Capacity" .
+
+:StandingCapacity a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Standing Capacity" .
+
+:WalkingCapacity a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Walking Capacity" .
+
+:SittingCapacity a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Sitting Capacity" .
+
+:ManipulativeLimitation a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Manipulative Limitation" ;
+    rdfs:comment "Reaching, handling, fingering, feeling" .
+
+:PosturalLimitation a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Postural Limitation" ;
+    rdfs:comment "Climbing, balancing, stooping, kneeling, crouching, crawling" .
+
+:EnvironmentalLimitation a owl:Class ;
+    rdfs:subClassOf :FunctionalLimitation ;
+    rdfs:label "Environmental Limitation" ;
+    rdfs:comment "Exposure to temperature extremes, noise, hazards, etc." .
+
+## RFC Properties with Fuzzy/Interval Modeling
+
+:hasCapacityValue a owl:DatatypeProperty ;
+    rdfs:domain :FunctionalLimitation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "has capacity value" ;
+    rdfs:comment "Numerical value (e.g., pounds, hours)" .
+
+:hasCapacityUnit a owl:DatatypeProperty ;
+    rdfs:domain :FunctionalLimitation ;
+    rdfs:range xsd:string ;
+    rdfs:label "has capacity unit" ;
+    rdfs:comment "Unit of measurement (lbs, hours, feet)" .
+
+:hasFrequency a owl:ObjectProperty ;
+    rdfs:domain :FunctionalLimitation ;
+    rdfs:range :FrequencyLevel ;
+    rdfs:label "has frequency" ;
+    rdfs:comment "How often the activity can be performed" .
+
+:FrequencyLevel a owl:Class ;
+    rdfs:label "Frequency Level" ;
+    rdfs:comment "SSA frequency categories for functional activities" .
+
+:Never a :FrequencyLevel ;
+    rdfs:label "Never" ;
+    :hasPercentageRange "0-0%" .
+
+:Occasionally a :FrequencyLevel ;
+    rdfs:label "Occasionally" ;
+    :hasPercentageRange "1-33%" ;
+    rdfs:comment "Very little up to 1/3 of workday" .
+
+:Frequently a :FrequencyLevel ;
+    rdfs:label "Frequently" ;
+    :hasPercentageRange "34-66%" ;
+    rdfs:comment "1/3 to 2/3 of workday" .
+
+:Constantly a :FrequencyLevel ;
+    rdfs:label "Constantly" ;
+    :hasPercentageRange "67-100%" ;
+    rdfs:comment "2/3 or more of workday" .
+
+:hasPercentageRange a owl:DatatypeProperty ;
+    rdfs:domain :FrequencyLevel ;
+    rdfs:range xsd:string ;
+    rdfs:label "has percentage range" .
+
+# RFC composition
+
+:hasExertionalLimitation a owl:ObjectProperty ;
+    rdfs:domain :ResidualFunctionalCapacity ;
+    rdfs:range :FunctionalLimitation ;
+    rdfs:label "has exertional limitation" .
+
+:hasNonExertionalLimitation a owl:ObjectProperty ;
+    rdfs:domain :ResidualFunctionalCapacity ;
+    rdfs:range :FunctionalLimitation ;
+    rdfs:label "has non-exertional limitation" .
+
+:exertionalLevel a owl:ObjectProperty ;
+    rdfs:domain :ResidualFunctionalCapacity ;
+    rdfs:range :ExertionalLevel ;
+    rdfs:label "exertional level" ;
+    rdfs:comment "Overall RFC classification (sedentary, light, medium, etc.)" .
+
+# =============================================================================
+# EVIDENCE HIERARCHY (CRITICAL ADDITION)
+# =============================================================================
+
+:Evidence a owl:Class ;
+    rdfs:subClassOf :Document ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "Any document or testimony used to establish facts in a claim" .
+
+:MedicalEvidence a owl:Class ;
+    rdfs:subClassOf :Evidence ;
+    rdfs:label "Medical Evidence" ;
+    rdfs:comment "Evidence from acceptable medical sources or non-medical sources" .
+
+:ObjectiveEvidence a owl:Class ;
+    rdfs:subClassOf :MedicalEvidence ;
+    rdfs:label "Objective Medical Evidence" ;
+    rdfs:comment "Laboratory findings, imaging, clinical observations (20 C.F.R. § 404.1513)" .
+
+:SubjectiveEvidence a owl:Class ;
+    rdfs:subClassOf :MedicalEvidence ;
+    rdfs:label "Subjective Evidence" ;
+    rdfs:comment "Claimant statements, symptoms, complaints" .
+
+:MedicalOpinion a owl:Class ;
+    rdfs:subClassOf :MedicalEvidence ;
+    rdfs:label "Medical Opinion" ;
+    rdfs:comment "Statement from medical source about what claimant can do despite impairments" .
+
+:NonMedicalEvidence a owl:Class ;
+    rdfs:subClassOf :Evidence ;
+    rdfs:label "Non-Medical Evidence" ;
+    rdfs:comment "Vocational assessments, work history, educational records" .
+
+## Evidence Sources (Hierarchy)
+
+:EvidenceSource a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Evidence Source" ;
+    rdfs:comment "Person or entity providing evidence" .
+
+:AcceptableMedicalSource a owl:Class ;
+    rdfs:subClassOf :EvidenceSource ;
+    rdfs:label "Acceptable Medical Source" ;
+    rdfs:comment "Source whose opinions can establish impairments (20 C.F.R. § 404.1513(a))" .
+
+:NonAcceptableMedicalSource a owl:Class ;
+    rdfs:subClassOf :EvidenceSource ;
+    rdfs:label "Non-Acceptable Medical Source" ;
+    rdfs:comment "Can provide valuable information but cannot establish impairment" .
+
+:TreatingPhysician a owl:Class ;
+    rdfs:subClassOf :AcceptableMedicalSource ;
+    rdfs:label "Treating Physician" ;
+    rdfs:comment "Doctor with ongoing treatment relationship (historically given controlling weight)" .
+
+:ExaminingPhysician a owl:Class ;
+    rdfs:subClassOf :AcceptableMedicalSource ;
+    rdfs:label "Examining Physician" ;
+    rdfs:comment "Doctor who examined claimant but not treating source" .
+
+:NonExaminingPhysician a owl:Class ;
+    rdfs:subClassOf :AcceptableMedicalSource ;
+    rdfs:label "Non-Examining Physician" ;
+    rdfs:comment "Doctor who reviewed records but never examined claimant (e.g., DDS physician)" .
+
+:Psychologist a owl:Class ;
+    rdfs:subClassOf :AcceptableMedicalSource ;
+    rdfs:label "Licensed Psychologist" .
+
+:Therapist a owl:Class ;
+    rdfs:subClassOf :NonAcceptableMedicalSource ;
+    rdfs:label "Therapist" ;
+    rdfs:comment "Physical therapist, occupational therapist, etc." .
+
+:SocialWorker a owl:Class ;
+    rdfs:subClassOf :NonAcceptableMedicalSource ;
+    rdfs:label "Licensed Clinical Social Worker" .
+
+## Evidence Weighting (Pre- and Post-2017 Rules)
+
+:EvidenceWeighting a owl:Class ;
+    rdfs:label "Evidence Weighting" ;
+    rdfs:comment "Framework for evaluating persuasiveness of medical opinions" .
+
+:ControllingWeight a owl:Class ;
+    rdfs:subClassOf :EvidenceWeighting ;
+    rdfs:label "Controlling Weight" ;
+    rdfs:comment "Standard for treating physician opinions pre-2017 (20 C.F.R. § 404.1527)" .
+
+:PersuasivenessFactors a owl:Class ;
+    rdfs:subClassOf :EvidenceWeighting ;
+    rdfs:label "Persuasiveness Factors" ;
+    rdfs:comment "Post-2017 framework (20 C.F.R. § 404.1520c) - supportability, consistency, relationship, specialization, other factors" .
+
+# Evidence Properties
+
+:providedBy a owl:ObjectProperty ;
+    rdfs:domain :Evidence ;
+    rdfs:range :EvidenceSource ;
+    rdfs:label "provided by" .
+
+:hasRelationshipToClaimant a owl:ObjectProperty ;
+    rdfs:domain :EvidenceSource ;
+    rdfs:range :RelationshipType ;
+    rdfs:label "has relationship to claimant" .
+
+:RelationshipType a owl:Class ;
+    rdfs:label "Relationship Type" .
+
+:TreatingRelationship a :RelationshipType ;
+    rdfs:label "Treating relationship" .
+
+:ExaminingRelationship a :RelationshipType ;
+    rdfs:label "Examining relationship" .
+
+:NonExaminingRelationship a :RelationshipType ;
+    rdfs:label "Non-examining relationship" .
+
+:hasProbativeWeight a owl:DatatypeProperty ;
+    rdfs:domain :Evidence ;
+    rdfs:range xsd:string ;
+    rdfs:label "has probative weight" ;
+    rdfs:comment "Assigned weight: controlling, substantial, moderate, limited, none" .
+
+:isWellSupported a owl:DatatypeProperty ;
+    rdfs:domain :MedicalOpinion ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is well supported" ;
+    rdfs:comment "Whether opinion is supported by objective findings" .
+
+:isConsistentWithRecord a owl:DatatypeProperty ;
+    rdfs:domain :MedicalOpinion ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is consistent with record" .
+
+:treatmentDuration a owl:DatatypeProperty ;
+    rdfs:domain :TreatingPhysician ;
+    rdfs:range xsd:duration ;
+    rdfs:label "treatment duration" ;
+    rdfs:comment "Length of treating relationship" .
+
+:treatmentFrequency a owl:DatatypeProperty ;
+    rdfs:domain :TreatingPhysician ;
+    rdfs:range xsd:string ;
+    rdfs:label "treatment frequency" .
+
+:hasSpecialization a owl:DatatypeProperty ;
+    rdfs:domain :AcceptableMedicalSource ;
+    rdfs:range xsd:string ;
+    rdfs:label "has specialization" ;
+    rdfs:comment "Medical specialty relevant to impairment" .
+
+# Temporal version for evidence rules
+
+:TreatingPhysicianRule_Pre2017 a :AuthorityVersion ;
+    :isVersionOf :TreatingPhysicianRule ;
+    :effectiveFrom "1991-08-01"^^xsd:date ;
+    :effectiveUntil "2017-03-27"^^xsd:date ;
+    rdfs:comment "Controlling weight doctrine for treating physicians" ;
+    :hasBindingForce "mandatory" .
+
+:TreatingPhysicianRule_Post2017 a :AuthorityVersion ;
+    :isVersionOf :TreatingPhysicianRule ;
+    :effectiveFrom "2017-03-27"^^xsd:date ;
+    :supersedes :TreatingPhysicianRule_Pre2017 ;
+    :appliesRetroactively false ;
+    rdfs:comment "Persuasiveness factors - eliminated controlling weight" .
+
+# =============================================================================
+# FOUNDATIONAL LAYER (SSI vs. SSDI Program Distinction)
+# =============================================================================
+
+:BenefitProgram a owl:Class ;
+    rdfs:label "Benefit Program" ;
+    rdfs:comment "SSA disability program with distinct eligibility requirements" .
+
+:SSDI a owl:Class ;
+    rdfs:subClassOf :BenefitProgram ;
+    rdfs:label "Social Security Disability Insurance (SSDI)" ;
+    rdfs:comment "Title II insurance-based program requiring work history (42 U.S.C. § 423)" .
+
+:SSI a owl:Class ;
+    rdfs:subClassOf :BenefitProgram ;
+    rdfs:label "Supplemental Security Income (SSI)" ;
+    rdfs:comment "Title XVI need-based program for disabled with limited income/resources (42 U.S.C. § 1382)" .
+
+:ConcurrentClaim a owl:Class ;
+    rdfs:subClassOf :BenefitProgram ;
+    rdfs:label "Concurrent Claim" ;
+    rdfs:comment "Application filed for both SSDI and SSI simultaneously" .
+
+## SSDI-Specific Classes
+
+:WorkHistory a owl:Class ;
+    rdfs:label "Work History" ;
+    rdfs:comment "Employment record used to establish insured status" .
+
+:QuartersOfCoverage a owl:Class ;
+    rdfs:label "Quarters of Coverage (QCs)" ;
+    rdfs:comment "Work credits earned under Social Security (40 QCs = fully insured)" .
+
+:InsuredStatus a owl:Class ;
+    rdfs:label "Insured Status" ;
+    rdfs:comment "Whether claimant has sufficient work credits for SSDI eligibility" .
+
+:DateLastInsured a owl:Class ;
+    rdfs:subClassOf :TemporalEntity ;
+    rdfs:label "Date Last Insured (DLI)" ;
+    rdfs:comment "Last date claimant had sufficient work credits for disability benefits" .
+
+## SSI-Specific Classes
+
+:FinancialResource a owl:Class ;
+    rdfs:label "Financial Resource" ;
+    rdfs:comment "Countable asset for SSI resource determination ($2,000 individual, $3,000 couple)" .
+
+:CountableIncome a owl:Class ;
+    rdfs:label "Countable Income" ;
+    rdfs:comment "Income that reduces SSI payment amount" .
+
+:EarnedIncome a owl:Class ;
+    rdfs:subClassOf :CountableIncome ;
+    rdfs:label "Earned Income" ;
+    rdfs:comment "Wages, self-employment income" .
+
+:UnearnedIncome a owl:Class ;
+    rdfs:subClassOf :CountableIncome ;
+    rdfs:label "Unearned Income" ;
+    rdfs:comment "Social Security benefits, pensions, interest" .
+
+:InKindSupportAndMaintenance a owl:Class ;
+    rdfs:subClassOf :UnearnedIncome ;
+    rdfs:label "In-Kind Support and Maintenance (ISM)" ;
+    rdfs:comment "Value of food or shelter provided by another" .
+
+## Deeming Sub-Ontology (CRITICAL FOR SSI)
+
+:DeemingScenario a owl:Class ;
+    rdfs:label "Deeming Scenario" ;
+    rdfs:comment "Situation where another person's income/resources are attributed to claimant" .
+
+:SpouseTospouseDeeming a owl:Class ;
+    rdfs:subClassOf :DeemingScenario ;
+    rdfs:label "Spouse-to-Spouse Deeming" ;
+    rdfs:comment "Income/resources of spouse deemed to SSI-eligible individual (20 C.F.R. § 416.1160)" .
+
+:ParentToChildDeeming a owl:Class ;
+    rdfs:subClassOf :DeemingScenario ;
+    rdfs:label "Parent-to-Child Deeming" ;
+    rdfs:comment "Income/resources of parent(s) deemed to child under 18 (20 C.F.R. § 416.1165)" .
+
+:SponsorToAlienDeeming a owl:Class ;
+    rdfs:subClassOf :DeemingScenario ;
+    rdfs:label "Sponsor-to-Alien Deeming" ;
+    rdfs:comment "Income/resources of sponsor deemed to non-citizen (20 C.F.R. § 416.1166a)" .
+
+:DeemingCalculation a owl:Class ;
+    rdfs:label "Deeming Calculation" ;
+    rdfs:comment "Formula for determining deemed income/resources" .
+
+# Deeming Properties
+
+:appliesDeeming a owl:ObjectProperty ;
+    rdfs:label "applies deeming" ;
+    rdfs:comment "Relationship requiring income/resource attribution" .
+
+:livesWith a owl:ObjectProperty ;
+    rdfs:domain :Claimant ;
+    rdfs:range :Agent ;
+    rdfs:label "lives with" ;
+    rdfs:comment "Household composition for deeming/ISM purposes" .
+
+:hasLivingArrangement a owl:ObjectProperty ;
+    rdfs:domain :Claimant ;
+    rdfs:range :LivingArrangement ;
+    rdfs:label "has living arrangement" .
+
+:LivingArrangement a owl:Class ;
+    rdfs:label "Living Arrangement" .
+
+:LivingInOwnHousehold a :LivingArrangement ;
+    rdfs:label "Living in own household" .
+
+:LivingInHouseholdOfAnother a :LivingArrangement ;
+    rdfs:label "Living in household of another" .
+
+:generalExclusionAmount a owl:DatatypeProperty ;
+    rdfs:domain :DeemingCalculation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "general exclusion amount" ;
+    rdfs:comment "Amount excluded from deemed income (e.g., $397 for spouse)" .
+
+:allocationForOthers a owl:DatatypeProperty ;
+    rdfs:domain :DeemingCalculation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "allocation for others" ;
+    rdfs:comment "Amount deducted for ineligible children in household" .
+
+:deemedIncome a owl:DatatypeProperty ;
+    rdfs:domain :DeemingScenario ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "deemed income" ;
+    rdfs:comment "Amount of income attributed to claimant after exclusions" .
+
+# =============================================================================
+# AGENT & ROLE LAYER (Actors in the System)
+# =============================================================================
+
+:Claimant a owl:Class ;
+    rdfs:subClassOf :Agent, sali:Party ;
+    rdfs:label "Claimant" ;
+    rdfs:comment "Individual applying for or receiving disability benefits" .
+
+:AdultClaimant a owl:Class ;
+    rdfs:subClassOf :Claimant ;
+    rdfs:label "Adult Claimant" ;
+    rdfs:comment "Individual age 18 or older applying for disability" .
+
+:ChildClaimant a owl:Class ;
+    rdfs:subClassOf :Claimant ;
+    rdfs:label "Child Claimant" ;
+    rdfs:comment "Individual under age 18 applying for SSI childhood disability" .
+
+:Representative a owl:Class ;
+    rdfs:subClassOf :Agent, sali:Party ;
+    rdfs:label "Representative" ;
+    rdfs:comment "Attorney or non-attorney representative for claimant" .
+
+:Adjudicator a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Adjudicator" ;
+    rdfs:comment "SSA decision-maker" .
+
+:DisabilityExaminer a owl:Class ;
+    rdfs:subClassOf :Adjudicator ;
+    rdfs:label "Disability Examiner" ;
+    rdfs:comment "State agency DDS examiner at initial/reconsideration level" .
+
+:AdministrativeLawJudge a owl:Class ;
+    rdfs:subClassOf :Adjudicator ;
+    rdfs:label "Administrative Law Judge (ALJ)" ;
+    rdfs:comment "Presides over hearings at OHO (Office of Hearings Operations)" .
+
+:AppealsCouncil a owl:Class ;
+    rdfs:subClassOf :Adjudicator ;
+    rdfs:label "Appeals Council" ;
+    rdfs:comment "Reviews ALJ decisions" .
+
+:FederalCourt a owl:Class ;
+    rdfs:subClassOf :Adjudicator ;
+    rdfs:label "Federal Court" ;
+    rdfs:comment "Reviews final SSA decisions under 42 U.S.C. § 405(g)" .
+
+:VocationalExpert a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Vocational Expert (VE)" ;
+    rdfs:comment "Testifies about job availability and requirements at ALJ hearings" .
+
+:MedicalExpert a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Medical Expert (ME)" ;
+    rdfs:comment "Testifies about medical equivalence to Listings" .
+
+:FieldOffice a owl:Class ;
+    rdfs:subClassOf :Agent ;
+    rdfs:label "Field Office" ;
+    rdfs:comment "Local SSA office that takes applications" .
+
+# Agent Properties
+
+:representsClaimant a owl:ObjectProperty ;
+    rdfs:domain :Representative ;
+    rdfs:range :Claimant ;
+    rdfs:label "represents claimant" .
+
+:adjudicatedBy a owl:ObjectProperty ;
+    rdfs:range :Adjudicator ;
+    rdfs:label "adjudicated by" .
+
+:providesTestimony a owl:ObjectProperty ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( :VocationalExpert :MedicalExpert ) ] ;
+    rdfs:label "provides testimony" .
+
+# =============================================================================
+# APPEALS ARCHITECTURE & STANDARDS OF REVIEW
+# =============================================================================
+
+:AdjudicativeLevel a owl:Class ;
+    rdfs:label "Adjudicative Level" ;
+    rdfs:comment "Stage in the administrative appeals process" .
+
+:InitialDetermination a owl:Class ;
+    rdfs:subClassOf :AdjudicativeLevel ;
+    rdfs:label "Initial Determination" ;
+    rdfs:comment "First-level decision by state DDS" .
+
+:Reconsideration a owl:Class ;
+    rdfs:subClassOf :AdjudicativeLevel ;
+    rdfs:label "Reconsideration" ;
+    rdfs:comment "Second-level review by different DDS examiner" .
+
+:ALJHearing a owl:Class ;
+    rdfs:subClassOf :AdjudicativeLevel ;
+    rdfs:label "ALJ Hearing" ;
+    rdfs:comment "De novo hearing with vocational/medical expert testimony" .
+
+:AppealsCouncilReview a owl:Class ;
+    rdfs:subClassOf :AdjudicativeLevel ;
+    rdfs:label "Appeals Council Review" ;
+    rdfs:comment "Final administrative review" .
+
+:FederalCourtReview a owl:Class ;
+    rdfs:subClassOf :AdjudicativeLevel ;
+    rdfs:label "Federal Court Review" ;
+    rdfs:comment "Judicial review under 42 U.S.C. § 405(g)" .
+
+## Standards of Review
+
+:StandardOfReview a owl:Class ;
+    rdfs:label "Standard of Review" ;
+    rdfs:comment "Legal standard applied at each adjudicative level" .
+
+:DeNovoReview a owl:Class ;
+    rdfs:subClassOf :StandardOfReview ;
+    rdfs:label "De Novo Review" ;
+    rdfs:comment "Fresh look at all evidence without deference to prior decision" .
+
+:SubstantialEvidenceStandard a owl:Class ;
+    rdfs:subClassOf :StandardOfReview ;
+    rdfs:label "Substantial Evidence Standard" ;
+    rdfs:comment "Whether reasonable mind could accept evidence as adequate (Appeals Council, Federal Court)" .
+
+# Properties
+
+:hasStandardOfReview a owl:ObjectProperty ;
+    rdfs:domain :AdjudicativeLevel ;
+    rdfs:range :StandardOfReview ;
+    rdfs:label "has standard of review" .
+
+:priorDecisionBecomesPartOfRecord a owl:DatatypeProperty ;
+    rdfs:domain :AdjudicativeLevel ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "prior decision becomes part of record" ;
+    rdfs:comment "Whether evidence/findings from lower level are included in the record" .
+
+:canReweighEvidence a owl:DatatypeProperty ;
+    rdfs:domain :StandardOfReview ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "can reweigh evidence" .
+
+# Instances
+
+:InitialDetermination :hasStandardOfReview :DeNovoReview .
+:Reconsideration :hasStandardOfReview :DeNovoReview .
+:ALJHearing :hasStandardOfReview :DeNovoReview ;
+            :priorDecisionBecomesPartOfRecord true .
+:AppealsCouncilReview :hasStandardOfReview :SubstantialEvidenceStandard ;
+                      :canReweighEvidence false .
+:FederalCourtReview :hasStandardOfReview :SubstantialEvidenceStandard ;
+                    :canReweighEvidence false .
+
+# =============================================================================
+# PROCEDURAL LAYER (Deadlines, Requirements, Exceptions)
+# =============================================================================
+
+:ProceduralRequirement a owl:Class ;
+    rdfs:label "Procedural Requirement" ;
+    rdfs:comment "Mandatory step or condition in the disability process" .
+
+:Deadline a owl:Class ;
+    rdfs:subClassOf :ProceduralRequirement ;
+    rdfs:label "Deadline" ;
+    rdfs:comment "Time limit for taking action" .
+
+:AppealDeadline a owl:Class ;
+    rdfs:subClassOf :Deadline ;
+    rdfs:label "Appeal Deadline" ;
+    rdfs:comment "60 days from receipt of notice to file appeal (20 C.F.R. § 404.933)" .
+
+:RequestForReconsiderationDeadline a owl:Class ;
+    rdfs:subClassOf :AppealDeadline ;
+    rdfs:label "Request for Reconsideration Deadline" .
+
+:RequestForHearingDeadline a owl:Class ;
+    rdfs:subClassOf :AppealDeadline ;
+    rdfs:label "Request for Hearing Deadline" .
+
+:ExhaustionRequirement a owl:Class ;
+    rdfs:subClassOf :ProceduralRequirement ;
+    rdfs:label "Exhaustion Requirement" ;
+    rdfs:comment "Must complete administrative appeals before federal court review" .
+
+:GoodCauseException a owl:Class ;
+    rdfs:label "Good Cause Exception" ;
+    rdfs:comment "Excuse for missing deadline (20 C.F.R. § 404.911)" .
+
+:RegulatoryWaiver a owl:Class ;
+    rdfs:label "Regulatory Waiver" ;
+    rdfs:comment "Exception to procedural requirement" .
+
+# Properties
+
+:hasDeadlinePeriod a owl:DatatypeProperty ;
+    rdfs:domain :Deadline ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has deadline period" .
+
+:triggeredBy a owl:ObjectProperty ;
+    rdfs:domain :Deadline ;
+    rdfs:range :Event ;
+    rdfs:label "triggered by" ;
+    rdfs:comment "Event that starts the clock (e.g., receipt of notice)" .
+
+:canBeWaived a owl:DatatypeProperty ;
+    rdfs:domain :ProceduralRequirement ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "can be waived" .
+
+:waivedBy a owl:ObjectProperty ;
+    rdfs:domain :ProceduralRequirement ;
+    rdfs:range :GoodCauseException ;
+    rdfs:label "waived by" .
+
+# =============================================================================
+# TEMPORAL & EVENT MODELING
+# =============================================================================
+
+:Onset a owl:Class ;
+    rdfs:subClassOf :Event, time:Instant ;
+    rdfs:label "Onset" ;
+    rdfs:comment "Date disability began" .
+
+:AllegedOnsetDate a owl:Class ;
+    rdfs:subClassOf :Onset ;
+    rdfs:label "Alleged Onset Date (AOD)" ;
+    rdfs:comment "Date claimant alleges disability began" .
+
+:EstablishedOnsetDate a owl:Class ;
+    rdfs:subClassOf :Onset ;
+    rdfs:label "Established Onset Date (EOD)" ;
+    rdfs:comment "Date SSA determines disability began (may differ from AOD)" .
+
+:WaitingPeriod a owl:Class ;
+    rdfs:subClassOf :TemporalEntity, time:Interval ;
+    rdfs:label "Waiting Period" ;
+    rdfs:comment "5-month period before SSDI benefits begin (not applicable to SSI)" .
+
+:ApplicationDate a owl:Class ;
+    rdfs:subClassOf :Event, time:Instant ;
+    rdfs:label "Application Date" ;
+    rdfs:comment "Date claim was filed (protective filing date)" .
+
+:DecisionDate a owl:Class ;
+    rdfs:subClassOf :Event, time:Instant ;
+    rdfs:label "Decision Date" ;
+    rdfs:comment "Date determination or decision was issued" .
+
+# Temporal Properties
+
+:hasOnsetDate a owl:ObjectProperty ;
+    rdfs:range :Onset ;
+    rdfs:label "has onset date" .
+
+:hasApplicationDate a owl:ObjectProperty ;
+    rdfs:range :ApplicationDate ;
+    rdfs:label "has application date" .
+
+:hasDecisionDate a owl:ObjectProperty ;
+    rdfs:range :DecisionDate ;
+    rdfs:label "has decision date" .
+
+:onsetPrecedesDLI a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "onset precedes DLI" ;
+    rdfs:comment "Critical for SSDI eligibility - onset must be before date last insured" .
+
+:durationMeets12Months a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "duration meets 12 months" ;
+    rdfs:comment "Impairment must last or be expected to last at least 12 months (20 C.F.R. § 404.1509)" .
+
+# =============================================================================
+# VOCATIONAL & WORK CLASSIFICATION
+# =============================================================================
+
+:Occupation a owl:Class ;
+    rdfs:label "Occupation" ;
+    rdfs:comment "A job classification" .
+
+:PastRelevantWork a owl:Class ;
+    rdfs:subClassOf :Occupation ;
+    rdfs:label "Past Relevant Work (PRW)" ;
+    rdfs:comment "Work performed in the last 15 years at SGA level for at least 30 days" .
+
+:VocationalProfile a owl:Class ;
+    rdfs:label "Vocational Profile" ;
+    rdfs:comment "Combination of age, education, and work experience used in Grid analysis" .
+
+## Age Categories (for Grid Rules)
+
+:AgeCategory a owl:Class ;
+    rdfs:label "Age Category" ;
+    rdfs:comment "Age classification for Grid rules (20 C.F.R. § 404.1563)" .
+
+:YoungerPerson a owl:Class ;
+    rdfs:subClassOf :AgeCategory ;
+    rdfs:label "Younger Person" ;
+    rdfs:comment "Age 18-49" .
+
+:PersonCloselyApproachingAdvancedAge a owl:Class ;
+    rdfs:subClassOf :AgeCategory ;
+    rdfs:label "Person Closely Approaching Advanced Age" ;
+    rdfs:comment "Age 50-54" .
+
+:AdvancedAge a owl:Class ;
+    rdfs:subClassOf :AgeCategory ;
+    rdfs:label "Advanced Age" ;
+    rdfs:comment "Age 55 or older (closely approaching retirement age)" .
+
+## Education Levels
+
+:EducationLevel a owl:Class ;
+    rdfs:label "Education Level" ;
+    rdfs:comment "Educational attainment for Grid analysis (20 C.F.R. § 404.1564)" .
+
+:IlliterateOrUnableToCommunciate a owl:Class ;
+    rdfs:subClassOf :EducationLevel ;
+    rdfs:label "Illiterate or Unable to Communicate" .
+
+:LimitedEducation a owl:Class ;
+    rdfs:subClassOf :EducationLevel ;
+    rdfs:label "Limited Education" ;
+    rdfs:comment "7th-11th grade" .
+
+:HighSchoolEducationOrMore a owl:Class ;
+    rdfs:subClassOf :EducationLevel ;
+    rdfs:label "High School Education or More" .
+
+## Skill Levels
+
+:SkillLevel a owl:Class ;
+    rdfs:label "Skill Level" ;
+    rdfs:comment "Work skill classification based on SVP (Specific Vocational Preparation)" .
+
+:Unskilled a owl:Class ;
+    rdfs:subClassOf :SkillLevel ;
+    rdfs:label "Unskilled Work" ;
+    rdfs:comment "SVP 1-2, little or no judgment, simple duties" .
+
+:SemiSkilled a owl:Class ;
+    rdfs:subClassOf :SkillLevel ;
+    rdfs:label "Semi-Skilled Work" ;
+    rdfs:comment "SVP 3-4, some skill but not complex" .
+
+:Skilled a owl:Class ;
+    rdfs:subClassOf :SkillLevel ;
+    rdfs:label "Skilled Work" ;
+    rdfs:comment "SVP 5-9, requires qualifications and judgment" .
+
+## Transferable Skills
+
+:TransferableSkills a owl:Class ;
+    rdfs:label "Transferable Skills" ;
+    rdfs:comment "Skills from past work that can be used in other work" .
+
+:hasTransferableSkills a owl:DatatypeProperty ;
+    rdfs:domain :VocationalProfile ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "has transferable skills" .
+
+# Vocational Profile Composition
+
+:requiresAgeCategory a owl:ObjectProperty ;
+    rdfs:domain :VocationalProfile ;
+    rdfs:range :AgeCategory ;
+    rdfs:label "requires age category" .
+
+:requiresEducation a owl:ObjectProperty ;
+    rdfs:domain :VocationalProfile ;
+    rdfs:range :EducationLevel ;
+    rdfs:label "requires education" .
+
+:requiresSkillLevel a owl:ObjectProperty ;
+    rdfs:domain :VocationalProfile ;
+    rdfs:range :SkillLevel ;
+    rdfs:label "requires skill level" .
+
+:requiresRFCLevel a owl:ObjectProperty ;
+    rdfs:domain :VocationalProfile ;
+    rdfs:range :ExertionalLevel ;
+    rdfs:label "requires RFC level" .
+
+# =============================================================================
+# DISABILITY FINDINGS & DETERMINATIONS
+# =============================================================================
+
+:Determination a owl:Class ;
+    rdfs:label "Determination" ;
+    rdfs:comment "Official decision on a disability claim" .
+
+:DisabilityFinding a owl:Class ;
+    rdfs:subClassOf :Determination ;
+    rdfs:label "Disability Finding" ;
+    rdfs:comment "Conclusion about whether claimant meets disability definition" .
+
+:FindingDisabled a owl:Class ;
+    rdfs:subClassOf :DisabilityFinding ;
+    rdfs:label "Finding: Disabled" ;
+    rdfs:comment "Claimant meets statutory definition of disability" .
+
+:FindingNotDisabled a owl:Class ;
+    rdfs:subClassOf :DisabilityFinding ;
+    rdfs:label "Finding: Not Disabled" ;
+    rdfs:comment "Claimant does not meet statutory definition of disability" .
+
+:FullyFavorableDecision a owl:Class ;
+    rdfs:subClassOf :FindingDisabled ;
+    rdfs:label "Fully Favorable Decision" ;
+    rdfs:comment "Disabled as of alleged onset date" .
+
+:PartiallyFavorableDecision a owl:Class ;
+    rdfs:subClassOf :FindingDisabled ;
+    rdfs:label "Partially Favorable Decision" ;
+    rdfs:comment "Disabled, but established onset date later than alleged onset date" .
+
+:UnfavorableDecision a owl:Class ;
+    rdfs:subClassOf :FindingNotDisabled ;
+    rdfs:label "Unfavorable Decision" ;
+    rdfs:comment "Not disabled" .
+
+# Properties
+
+:hasFinding a owl:ObjectProperty ;
+    rdfs:domain :Determination ;
+    rdfs:range :DisabilityFinding ;
+    rdfs:label "has finding" .
+
+:isBasedOnStep a owl:ObjectProperty ;
+    rdfs:domain :Determination ;
+    rdfs:range :EvaluationStep ;
+    rdfs:label "is based on step" ;
+    rdfs:comment "Which step of sequential evaluation produced the finding" .
+
+# =============================================================================
+# EPISTEMIC STATES & UNCERTAINTY MODELING
+# =============================================================================
+
+:EpistemicState a owl:Class ;
+    rdfs:label "Epistemic State" ;
+    rdfs:comment "Represents degree of certainty or dispute about a fact" .
+
+:EstablishedFact a owl:Class ;
+    rdfs:subClassOf :EpistemicState ;
+    rdfs:label "Established Fact" ;
+    rdfs:comment "Undisputed fact supported by objective evidence" .
+
+:ContestedFact a owl:Class ;
+    rdfs:subClassOf :EpistemicState ;
+    rdfs:label "Contested Fact" ;
+    rdfs:comment "Fact disputed by competing evidence or testimony" .
+
+:CredibilityDetermination a owl:Class ;
+    rdfs:subClassOf :EpistemicState ;
+    rdfs:label "Credibility Determination" ;
+    rdfs:comment "ALJ's assessment of whether claimant's statements are credible" .
+
+:WeightOfEvidence a owl:Class ;
+    rdfs:label "Weight of Evidence" ;
+    rdfs:comment "Relative persuasiveness assigned to conflicting evidence" .
+
+# Properties
+
+:hasEpistemicStatus a owl:ObjectProperty ;
+    rdfs:range :EpistemicState ;
+    rdfs:label "has epistemic status" .
+
+:credibilityRating a owl:DatatypeProperty ;
+    rdfs:domain :CredibilityDetermination ;
+    rdfs:range xsd:string ;
+    rdfs:label "credibility rating" ;
+    rdfs:comment "Credible, partially credible, not credible" .
+
+:supportedBy a owl:ObjectProperty ;
+    rdfs:range :Evidence ;
+    rdfs:label "supported by" .
+
+:contradictedBy a owl:ObjectProperty ;
+    rdfs:range :Evidence ;
+    rdfs:label "contradicted by" .
+
+# =============================================================================
+# MEDICAL IMPAIRMENTS & BODY SYSTEMS
+# =============================================================================
+
+:Impairment a owl:Class ;
+    rdfs:subClassOf :Concept ;
+    rdfs:label "Impairment" ;
+    rdfs:comment "Medically determinable physical or mental condition" .
+
+:SevereImpairment a owl:Class ;
+    rdfs:subClassOf :Impairment ;
+    rdfs:label "Severe Impairment" ;
+    rdfs:comment "Impairment causing more than minimal limitation (Step 2)" .
+
+:NonSevereImpairment a owl:Class ;
+    rdfs:subClassOf :Impairment ;
+    rdfs:label "Non-Severe Impairment" ;
+    rdfs:comment "Impairment with minimal effect on work ability" .
+
+:MentalImpairment a owl:Class ;
+    rdfs:subClassOf :Impairment ;
+    rdfs:label "Mental Impairment" ;
+    rdfs:comment "Psychiatric or cognitive condition" .
+
+:PhysicalImpairment a owl:Class ;
+    rdfs:subClassOf :Impairment ;
+    rdfs:label "Physical Impairment" ;
+    rdfs:comment "Anatomical, physiological, or biochemical abnormality" .
+
+## Body Systems (Listing Categories)
+
+:BodySystem a owl:Class ;
+    rdfs:label "Body System" ;
+    rdfs:comment "Major organ system (corresponds to Listing sections)" .
+
+:Musculoskeletal a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Musculoskeletal System" ;
+    rdfs:comment "Listing 1.00" .
+
+:SpecialSensesAndSpeech a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Special Senses and Speech" ;
+    rdfs:comment "Listing 2.00" .
+
+:Respiratory a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Respiratory System" ;
+    rdfs:comment "Listing 3.00" .
+
+:Cardiovascular a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Cardiovascular System" ;
+    rdfs:comment "Listing 4.00" .
+
+:Digestive a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Digestive System" ;
+    rdfs:comment "Listing 5.00" .
+
+:Genitourinary a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Genitourinary Disorders" ;
+    rdfs:comment "Listing 6.00" .
+
+:Hematological a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Hematological Disorders" ;
+    rdfs:comment "Listing 7.00" .
+
+:Skin a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Skin Disorders" ;
+    rdfs:comment "Listing 8.00" .
+
+:Endocrine a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Endocrine Disorders" ;
+    rdfs:comment "Listing 9.00" .
+
+:Neurological a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Neurological Disorders" ;
+    rdfs:comment "Listing 11.00" .
+
+:MentalDisorders a owl:Class ;
+    rdfs:subClassOf :BodySystem ;
+    rdfs:label "Mental Disorders" ;
+    rdfs:comment "Listing 12.00" .
+
+# Impairment Properties
+
+:hasBodySystem a owl:ObjectProperty ;
+    rdfs:domain :Impairment ;
+    rdfs:range :BodySystem ;
+    rdfs:label "has body system" .
+
+:hasDuration a owl:DatatypeProperty ;
+    rdfs:domain :Impairment ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has duration" .
+
+:hasICD10Code a owl:DatatypeProperty ;
+    rdfs:domain :Impairment ;
+    rdfs:range xsd:string ;
+    rdfs:label "has ICD-10 code" ;
+    rdfs:comment "Maps to external medical ontologies" .
+
+:hasSNOMEDCode a owl:DatatypeProperty ;
+    rdfs:domain :Impairment ;
+    rdfs:range xsd:string ;
+    rdfs:label "has SNOMED code" ;
+    rdfs:comment "Maps to SNOMED CT" .
+
+:hasSevereImpairment a owl:ObjectProperty ;
+    rdfs:domain :Claimant ;
+    rdfs:range :SevereImpairment ;
+    rdfs:label "has severe impairment" .
+
+# =============================================================================
+# CHILDHOOD DISABILITY (PARALLEL STRUCTURE)
+# =============================================================================
+
+:ChildhoodDisabilityClaim a owl:Class ;
+    rdfs:label "Childhood Disability Claim" ;
+    rdfs:comment "SSI claim for child under 18 (different evaluation)" .
+
+:FunctionalDomain a owl:Class ;
+    rdfs:label "Functional Domain" ;
+    rdfs:comment "Area of functioning assessed for childhood disability (20 C.F.R. § 416.926a)" .
+
+:AcquiringAndUsingInformation a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Acquiring and Using Information" .
+
+:AttendingAndCompletingTasks a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Attending and Completing Tasks" .
+
+:InteractingAndRelatingWithOthers a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Interacting and Relating with Others" .
+
+:MovingAboutAndManipulatingObjects a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Moving About and Manipulating Objects" .
+
+:CaringForYourself a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Caring for Yourself" .
+
+:HealthAndPhysicalWellBeing a owl:Class ;
+    rdfs:subClassOf :FunctionalDomain ;
+    rdfs:label "Health and Physical Well-Being" .
+
+:LimitationLevel a owl:Class ;
+    rdfs:label "Limitation Level" ;
+    rdfs:comment "Degree of limitation in functional domain" .
+
+:NoLimitation a :LimitationLevel ;
+    rdfs:label "No limitation" .
+
+:LessThanMarked a :LimitationLevel ;
+    rdfs:label "Less than marked limitation" .
+
+:MarkedLimitation a :LimitationLevel ;
+    rdfs:label "Marked limitation" ;
+    rdfs:comment "Serious limitation (2 marked = disabled)" .
+
+:ExtremeLimitation a :LimitationLevel ;
+    rdfs:label "Extreme limitation" ;
+    rdfs:comment "Very serious limitation (1 extreme = disabled)" .
+
+# Properties
+
+:hasLimitationInDomain a owl:ObjectProperty ;
+    rdfs:domain :ChildClaimant ;
+    rdfs:range :FunctionalDomain ;
+    rdfs:label "has limitation in domain" .
+
+:limitationLevel a owl:ObjectProperty ;
+    rdfs:range :LimitationLevel ;
+    rdfs:label "limitation level" .
+
+# =============================================================================
+# BENEFIT CALCULATIONS & CONCURRENT BENEFITS
+# =============================================================================
+
+:BenefitCalculation a owl:Class ;
+    rdfs:label "Benefit Calculation" ;
+    rdfs:comment "Computation of monthly payment amount" .
+
+:SSDIBenefitAmount a owl:Class ;
+    rdfs:subClassOf :BenefitCalculation ;
+    rdfs:label "SSDI Benefit Amount" ;
+    rdfs:comment "Based on lifetime earnings (Average Indexed Monthly Earnings)" .
+
+:SSIBenefitAmount a owl:Class ;
+    rdfs:subClassOf :BenefitCalculation ;
+    rdfs:label "SSI Benefit Amount" ;
+    rdfs:comment "Federal Benefit Rate minus countable income" .
+
+:ConcurrentBenefitCalculation a owl:Class ;
+    rdfs:subClassOf :BenefitCalculation ;
+    rdfs:label "Concurrent Benefit Calculation" ;
+    rdfs:comment "SSI supplements SSDI if SSDI is below FBR" .
+
+:TitleIIOffset a owl:Class ;
+    rdfs:label "Title II Offset" ;
+    rdfs:comment "SSDI payment reduces SSI dollar-for-dollar" .
+
+:StateSupplementation a owl:Class ;
+    rdfs:label "State Supplementation" ;
+    rdfs:comment "Additional SSI payment from state" .
+
+# Benefit Properties
+
+:monthlyBenefitAmount a owl:DatatypeProperty ;
+    rdfs:domain :BenefitCalculation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "monthly benefit amount" .
+
+:federalBenefitRate a owl:DatatypeProperty ;
+    rdfs:domain :SSIBenefitAmount ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "federal benefit rate" ;
+    rdfs:comment "Maximum SSI payment (updated annually)" .
+
+:countableIncome a owl:DatatypeProperty ;
+    rdfs:domain :BenefitCalculation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "countable income" .
+
+:hasOffset a owl:ObjectProperty ;
+    rdfs:domain :ConcurrentBenefitCalculation ;
+    rdfs:range :TitleIIOffset ;
+    rdfs:label "has offset" .
+
+# =============================================================================
+# JURISDICTIONAL & REGIONAL VARIATIONS
+# =============================================================================
+
+:JurisdictionalVariation a owl:Class ;
+    rdfs:label "Jurisdictional Variation" ;
+    rdfs:comment "Differences in interpretation across circuits or regions" .
+
+:CircuitCourt a owl:Class ;
+    rdfs:label "Circuit Court" ;
+    rdfs:comment "Federal appellate circuit (1st through 11th, DC, Federal)" .
+
+:RegionalInterpretation a owl:Class ;
+    rdfs:subClassOf :JurisdictionalVariation ;
+    rdfs:label "Regional Interpretation" ;
+    rdfs:comment "Circuit-specific interpretation of SSA rules" .
+
+:HearingOffice a owl:Class ;
+    rdfs:label "Hearing Office" ;
+    rdfs:comment "OHO office where ALJ hearings are held" .
+
+# Properties
+
+:appliesInCircuit a owl:ObjectProperty ;
+    rdfs:domain :RegionalInterpretation ;
+    rdfs:range :CircuitCourt ;
+    rdfs:label "applies in circuit" .
+
+:locatedInCircuit a owl:ObjectProperty ;
+    rdfs:domain :HearingOffice ;
+    rdfs:range :CircuitCourt ;
+    rdfs:label "located in circuit" .
+
+# =============================================================================
+# SALI INTEGRATION (Matter Management)
+# =============================================================================
+
+:MatterType a owl:Class ;
+    rdfs:subClassOf sali:Matter ;
+    rdfs:label "Matter Type" .
+
+:SSDIClaim a owl:Class ;
+    rdfs:subClassOf :MatterType ;
+    rdfs:label "SSDI Claim Matter" ;
+    sali:hasAreaOfLaw sali:SocialSecurityDisabilityLaw .
+
+:SSIClaim a owl:Class ;
+    rdfs:subClassOf :MatterType ;
+    rdfs:label "SSI Claim Matter" ;
+    sali:hasAreaOfLaw sali:SocialSecurityDisabilityLaw .
+
+# Event types for matter management
+
+:HearingScheduled a owl:Class ;
+    rdfs:subClassOf :Event, sali:MatterEvent ;
+    rdfs:label "Hearing Scheduled" .
+
+:DecisionIssued a owl:Class ;
+    rdfs:subClassOf :Event, sali:MatterEvent ;
+    rdfs:label "Decision Issued" .
+
+:AppealFiled a owl:Class ;
+    rdfs:subClassOf :Event, sali:MatterEvent ;
+    rdfs:label "Appeal Filed" .
+
+# =============================================================================
+# MEDICAL FINDINGS (Specific Clinical Observations)
+# =============================================================================
+
+:MedicalFinding a owl:Class ;
+    rdfs:label "Medical Finding" ;
+    rdfs:comment "Specific clinical observation or test result" .
+
+:NerveRootCompression a owl:Class ;
+    rdfs:subClassOf :MedicalFinding ;
+    rdfs:label "Nerve Root Compression" .
+
+:MotorLoss a owl:Class ;
+    rdfs:subClassOf :MedicalFinding ;
+    rdfs:label "Motor Loss" .
+
+:SensoryLoss a owl:Class ;
+    rdfs:subClassOf :MedicalFinding ;
+    rdfs:label "Sensory Loss" .
+
+:ReflexLoss a owl:Class ;
+    rdfs:subClassOf :MedicalFinding ;
+    rdfs:label "Reflex Loss" .
+
+:MuscleAtrophy a owl:Class ;
+    rdfs:subClassOf :MedicalFinding ;
+    rdfs:label "Muscle Atrophy" .
+
+# Properties
+
+:shows a owl:ObjectProperty ;
+    rdfs:domain :MedicalEvidence ;
+    rdfs:range :MedicalFinding ;
+    rdfs:label "shows" ;
+    rdfs:comment "Medical record documents this finding" .
+
+:satisfies a owl:ObjectProperty ;
+    rdfs:domain :MedicalEvidence ;
+    rdfs:range :ListingCriterion ;
+    rdfs:label "satisfies" ;
+    rdfs:comment "Evidence meets this criterion" .
+
+:requiresFindings a owl:ObjectProperty ;
+    rdfs:domain :ListingCriterion ;
+    rdfs:range :MedicalFinding ;
+    rdfs:label "requires findings" .
+
+# =============================================================================
+# REASONER HINTS & INFERENCE RULES
+# =============================================================================
+
+# Example SWRL rule (would be in separate rules file)
+# If claimant has Grid Rule that mandates "Disabled" AND no VE testimony rebuts it, THEN finding is "Disabled"
+
+# Example OWL restriction for Listing satisfaction
+:MeetsListing_1_15 a owl:Class ;
+    owl:equivalentClass [
+        a owl:Class ;
+        owl:intersectionOf (
+            :Claimant
+            [ a owl:Restriction ;
+              owl:onProperty :hasMedicalEvidence ;
+              owl:someValuesFrom [
+                  a owl:Class ;
+                  owl:intersectionOf (
+                      [ a owl:Restriction ;
+                        owl:onProperty :shows ;
+                        owl:hasValue :NerveRootCompression ]
+                      [ a owl:Restriction ;
+                        owl:onProperty :shows ;
+                        owl:hasValue :MotorLoss ]
+                  )
+              ]
+            ]
+        )
+    ] ;
+    rdfs:label "Claimant who meets Listing 1.15" .
+
+# =============================================================================
+# ANNOTATIONS & METADATA
+# =============================================================================
+
+# All classes and properties should have annotations
+
+:hasRegulatoryCitation a owl:AnnotationProperty ;
+    rdfs:label "has regulatory citation" .
+
+:hasSSRGuidance a owl:AnnotationProperty ;
+    rdfs:label "has SSR guidance" .
+
+:hasPOMSReference a owl:AnnotationProperty ;
+    rdfs:label "has POMS reference" .
+
+:lastUpdated a owl:AnnotationProperty ;
+    rdfs:label "last updated" .
+
+# =============================================================================
+# END OF ONTOLOGY
+# =============================================================================
