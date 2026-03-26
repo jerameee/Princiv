@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Princiv is a **Legal Context Engine for Regulated AI Agents** — a system that models law as structured, queryable knowledge so AI agents can reason about legal constraints in regulated domains. The current focus is SSA disability law (SSI/SSDI).
 
 The architecture has two complementary layers:
-- **Neo4j knowledge graph** (`schema/`) — stores concrete legal facts: cases, statutes, courts, jurisdictions, and their relationships (citations, precedence, interpretation)
+- **Neo4j knowledge graph** (`graph/`) — stores concrete legal facts: cases, statutes, courts, jurisdictions, and their relationships (citations, precedence, interpretation)
 - **OWL 2.0 ontology** (`ontology/ssa_domain.ttl`) — formally models the SSA 5-step sequential disability evaluation process, medical listings, RFC assessments, and the authority hierarchy (statutes → regulations → SSRs → HALLEX/POMS)
 
 ## Working with the Knowledge Graph (Neo4j)
@@ -15,13 +15,13 @@ The architecture has two complementary layers:
 To initialize a fresh Neo4j instance:
 ```cypher
 -- 1. Run constraints and indexes
-:source schema/create_schema.cypher
+:source graph/schema.cypher
 
 -- 2. Load seed data
-:source schema/load_seed_data.cypher
+:source graph/seed_data/load_seed_data.cypher
 
 -- 3. Validate the graph
-:source schema/validation_queries.cypher
+:source graph/validation_queries.cypher
 ```
 
 `validation_queries.cypher` contains 30 queries with expected result counts in comments — these are the de facto test suite. Expected state after seed load:
