@@ -1,0 +1,47 @@
+# object_properties.rq
+# Validates that all 16 required relationship types are present in ssa_domain.ttl.
+#
+# Run against a Jena triple store:
+#   sparql --data=ontology/ssa_domain.ttl --query=ontology/tests/sparql/object_properties.rq
+#
+# Expected: 16 rows, one for each required property.
+# A missing row means the property is absent from the ontology.
+
+PREFIX : <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?requiredProperty ?label ?domain ?range
+WHERE {
+  VALUES (?requiredProperty) {
+    # Relationship types from sprint spec (16 total)
+    # 2 already present
+    (:interprets)
+    (:supersedes)
+    # 14 added in Task 1.1.2
+    (:causesSymptom)
+    (:resultsInLimitation)
+    (:mayMeetListing)
+    (:requiresEvidence)
+    (:affectsRFCComponent)
+    (:restrictsToWorkLevel)
+    (:compatibleWithJobs)
+    (:appliesTo)
+    (:resultsInDecision)
+    (:ifYesGoTo)
+    (:ifNoGoTo)
+    (:hasPastRelevantWork)
+    (:protectedBy)
+    (:subjectToPrivilege)
+  }
+
+  # Property must be declared as an ObjectProperty
+  ?requiredProperty a owl:ObjectProperty .
+
+  OPTIONAL { ?requiredProperty rdfs:label ?label }
+  OPTIONAL { ?requiredProperty rdfs:domain ?domain .
+             FILTER (!isBlank(?domain)) }
+  OPTIONAL { ?requiredProperty rdfs:range ?range .
+             FILTER (!isBlank(?range)) }
+}
+ORDER BY ?requiredProperty

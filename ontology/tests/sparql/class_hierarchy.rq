@@ -1,0 +1,43 @@
+# class_hierarchy.rq
+# Validates that all 13 required node types are present in ssa_domain.ttl
+# and confirms their expected superclass placement.
+#
+# Run against a Jena triple store:
+#   sparql --data=ontology/ssa_domain.ttl --query=ontology/tests/sparql/class_hierarchy.rq
+#
+# Expected: 13 rows, one for each required class.
+# A missing row means the class is absent from the ontology.
+
+PREFIX : <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?requiredClass ?label ?superClass
+WHERE {
+  VALUES (?requiredClass) {
+    # Node types from sprint spec (13 total)
+    (:Listing)
+    (:Regulation)
+    (:Occupation)
+    (:GridRule)
+    (:EvaluationStep)
+    (:FunctionalLimitation)
+    (:Claimant)
+    (:MedicalCondition)
+    (:SSR)
+    (:RFCComponent)
+    (:DOT)
+    (:CourtCase)
+    (:EvidenceType)
+  }
+
+  # Class must be declared
+  { ?requiredClass a owl:Class }
+  UNION
+  { ?requiredClass owl:equivalentClass ?equiv }
+
+  OPTIONAL { ?requiredClass rdfs:label ?label }
+  OPTIONAL { ?requiredClass rdfs:subClassOf ?superClass .
+             FILTER (!isBlank(?superClass)) }
+}
+ORDER BY ?requiredClass
