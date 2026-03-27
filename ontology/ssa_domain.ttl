@@ -396,12 +396,7 @@
 
 :Criterion_1_15_A a :MandatoryCriterion ;
     rdfs:label "Nerve root compression with pain and limitation of motion" ;
-    :requiresFindings [
-        :NerveRootCompression ;
-        :MotorLoss ;
-        :SensoryLoss ;
-        :ReflexLoss
-    ] .
+    :requiresFindings :NerveRootCompression, :MotorLoss, :SensoryLoss, :ReflexLoss .
 
 # Listing versioning example
 
