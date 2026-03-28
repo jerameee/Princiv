@@ -88,6 +88,70 @@ FOR (s:Statute) ON (s.section);
 
 
 // ============================================================================
+// SSDI DOMAIN — UNIQUENESS CONSTRAINTS (Task 1.2.1)
+// ============================================================================
+
+CREATE CONSTRAINT medical_condition_id_unique IF NOT EXISTS
+FOR (mc:MedicalCondition) REQUIRE mc.id IS UNIQUE;
+
+CREATE CONSTRAINT listing_id_unique IF NOT EXISTS
+FOR (l:Listing) REQUIRE l.id IS UNIQUE;
+
+CREATE CONSTRAINT ssr_id_unique IF NOT EXISTS
+FOR (ssr:SSR) REQUIRE ssr.id IS UNIQUE;
+
+CREATE CONSTRAINT rfc_component_id_unique IF NOT EXISTS
+FOR (rfc:RFCComponent) REQUIRE rfc.id IS UNIQUE;
+
+CREATE CONSTRAINT occupation_id_unique IF NOT EXISTS
+FOR (o:Occupation) REQUIRE o.id IS UNIQUE;
+
+CREATE CONSTRAINT grid_rule_id_unique IF NOT EXISTS
+FOR (gr:GridRule) REQUIRE gr.id IS UNIQUE;
+
+CREATE CONSTRAINT evaluation_step_id_unique IF NOT EXISTS
+FOR (es:EvaluationStep) REQUIRE es.id IS UNIQUE;
+
+CREATE CONSTRAINT functional_limitation_id_unique IF NOT EXISTS
+FOR (fl:FunctionalLimitation) REQUIRE fl.id IS UNIQUE;
+
+CREATE CONSTRAINT claimant_id_unique IF NOT EXISTS
+FOR (cl:Claimant) REQUIRE cl.id IS UNIQUE;
+
+CREATE CONSTRAINT court_case_id_unique IF NOT EXISTS
+FOR (cc:CourtCase) REQUIRE cc.id IS UNIQUE;
+
+CREATE CONSTRAINT evidence_type_id_unique IF NOT EXISTS
+FOR (et:EvidenceType) REQUIRE et.id IS UNIQUE;
+
+
+// ============================================================================
+// SSDI DOMAIN — PROPERTY INDEXES (Task 1.2.2)
+// ============================================================================
+
+// B-tree indexes on query-critical lookup properties
+CREATE INDEX listing_section_index IF NOT EXISTS
+FOR (l:Listing) ON (l.section);
+
+CREATE INDEX ssr_number_index IF NOT EXISTS
+FOR (ssr:SSR) ON (ssr.number);
+
+CREATE INDEX occupation_dot_code_index IF NOT EXISTS
+FOR (o:Occupation) ON (o.dot_code);
+
+CREATE INDEX medical_condition_icd10_index IF NOT EXISTS
+FOR (mc:MedicalCondition) ON (mc.icd10_code);
+
+CREATE INDEX grid_rule_number_index IF NOT EXISTS
+FOR (gr:GridRule) ON (gr.rule_number);
+
+// Composite index for Step 5 Grid Rule lookups — all four vocational factors
+// EXPLAIN on: MATCH (gr:GridRule {rfc_level:$r, age_category:$a, education:$e, work_experience:$w})
+CREATE INDEX grid_rule_step5_composite_index IF NOT EXISTS
+FOR (gr:GridRule) ON (gr.rfc_level, gr.age_category, gr.education, gr.work_experience);
+
+
+// ============================================================================
 // VERIFICATION
 // ============================================================================
 
