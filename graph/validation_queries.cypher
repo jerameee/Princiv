@@ -408,6 +408,74 @@ RETURN
 
 
 // ============================================================================
+// SEQUENTIAL EVALUATION GRAPH VALIDATION (Task 1.4)
+// ============================================================================
+
+// Query 31: Acceptance criterion — exactly 5 EvaluationStep nodes
+MATCH (e:EvaluationStep) RETURN count(e) AS evaluation_step_count;
+// Expected: 5
+
+
+// Query 32: Verify all steps have required properties
+MATCH (e:EvaluationStep)
+RETURN
+    e.step_number     AS step_number,
+    e.name            AS name,
+    e.question        AS question,
+    e.burden_of_proof AS burden_of_proof,
+    e.cfr_cite        AS cfr_cite
+ORDER BY e.step_number;
+// Expected: 5 rows, each with all properties populated
+
+
+// Query 33: Acceptance criterion — full five-step path traversable in one query
+// This traces the claimant-favored path (no SGA → severe MDI → no listing → no PRW → no other work → disabled)
+MATCH path = (s1:EvaluationStep {id: "step_1_sga"})
+             -[:IF_NO_GO_TO]->(s2:EvaluationStep)
+             -[:IF_YES_GO_TO]->(s3:EvaluationStep)
+             -[:IF_NO_GO_TO]->(s4:EvaluationStep)
+             -[:IF_NO_GO_TO]->(s5:EvaluationStep)
+             -[:IF_NO_GO_TO]->(outcome:EvaluationOutcome)
+RETURN
+    [n IN nodes(path) | coalesce(n.name, n.result)] AS evaluation_path,
+    outcome.result AS final_disposition;
+// Expected: single row, final_disposition = "disabled"
+
+
+// Query 34: Verify all branching edges with their outcome labels
+MATCH (e:EvaluationStep)-[r:IF_YES_GO_TO|IF_NO_GO_TO]->(target)
+RETURN
+    e.step_number                        AS step,
+    e.name                               AS step_name,
+    type(r)                              AS branch,
+    r.outcome                            AS outcome,
+    r.disposition                        AS disposition,
+    labels(target)                       AS target_type,
+    coalesce(target.name, target.result) AS target_name
+ORDER BY e.step_number, type(r);
+// Expected: 10 rows — 2 edges (IF_YES / IF_NO) per step
+
+
+// Query 35: Verify Step 3 YES branch terminates at disabled outcome
+MATCH (s3:EvaluationStep {id: "step_3_listings"})
+      -[r:IF_YES_GO_TO]->(outcome:EvaluationOutcome)
+RETURN s3.name AS step, r.outcome AS branch_outcome, outcome.result AS disposition;
+// Expected: disposition = "disabled"
+
+
+// Query 36: Verify Step 5 exhausts into both outcomes
+MATCH (s5:EvaluationStep {id: "step_5_other_work"})-[r]->(outcome:EvaluationOutcome)
+RETURN type(r) AS branch, r.outcome AS label, outcome.result AS disposition
+ORDER BY type(r);
+// Expected: 2 rows — IF_YES → not_disabled, IF_NO → disabled
+
+
+// Query 37: Count all evaluation graph edges
+MATCH ()-[r:IF_YES_GO_TO|IF_NO_GO_TO]->() RETURN type(r), count(r) AS count ORDER BY type(r);
+// Expected: IF_NO_GO_TO = 5, IF_YES_GO_TO = 5
+
+
+// ============================================================================
 // SUCCESS CRITERIA
 // ============================================================================
 //
@@ -417,6 +485,7 @@ RETURN
 // ✅ Relationships are established
 // ✅ Indexes are working
 // ✅ Graph supports legal reasoning patterns
+// ✅ EvaluationStep graph is seeded and traversable (Task 1.4)
 // ✅ Ready to proceed with Sprint 2 (retrieval & context assembly)
 //
 // ============================================================================

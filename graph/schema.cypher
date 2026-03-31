@@ -112,6 +112,9 @@ FOR (gr:GridRule) REQUIRE gr.id IS UNIQUE;
 CREATE CONSTRAINT evaluation_step_id_unique IF NOT EXISTS
 FOR (es:EvaluationStep) REQUIRE es.id IS UNIQUE;
 
+CREATE CONSTRAINT evaluation_outcome_id_unique IF NOT EXISTS
+FOR (eo:EvaluationOutcome) REQUIRE eo.id IS UNIQUE;
+
 CREATE CONSTRAINT functional_limitation_id_unique IF NOT EXISTS
 FOR (fl:FunctionalLimitation) REQUIRE fl.id IS UNIQUE;
 
