@@ -1,0 +1,27 @@
+# ask_02_required_properties_present.rq
+# Asserts: all 16 required OWL object properties are declared.
+# Expected result: true
+#
+# Fails if any property was removed or renamed.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  :interprets          a owl:ObjectProperty .
+  :supersedes          a owl:ObjectProperty .
+  :causesSymptom       a owl:ObjectProperty .
+  :resultsInLimitation a owl:ObjectProperty .
+  :mayMeetListing      a owl:ObjectProperty .
+  :requiresEvidence    a owl:ObjectProperty .
+  :affectsRFCComponent a owl:ObjectProperty .
+  :restrictsToWorkLevel a owl:ObjectProperty .
+  :compatibleWithJobs  a owl:ObjectProperty .
+  :appliesTo           a owl:ObjectProperty .
+  :resultsInDecision   a owl:ObjectProperty .
+  :ifYesGoTo           a owl:ObjectProperty .
+  :ifNoGoTo            a owl:ObjectProperty .
+  :hasPastRelevantWork a owl:ObjectProperty .
+  :protectedBy         a owl:ObjectProperty .
+  :subjectToPrivilege  a owl:ObjectProperty .
+}

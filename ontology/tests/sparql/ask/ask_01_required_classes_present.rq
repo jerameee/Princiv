@@ -1,0 +1,25 @@
+# ask_01_required_classes_present.rq
+# Asserts: all 13 required OWL classes are declared in the ontology.
+# Expected result: true
+#
+# Fails if any class was accidentally removed or renamed.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  # Every entry must match (class declared directly or via equivalentClass alias)
+  { :Listing           a owl:Class } UNION { :Listing           owl:equivalentClass ?a1 }
+  { :Regulation        a owl:Class } UNION { :Regulation        owl:equivalentClass ?a2 }
+  { :Occupation        a owl:Class } UNION { :Occupation        owl:equivalentClass ?a3 }
+  { :GridRule          a owl:Class } UNION { :GridRule          owl:equivalentClass ?a4 }
+  { :EvaluationStep    a owl:Class } UNION { :EvaluationStep    owl:equivalentClass ?a5 }
+  { :FunctionalLimitation a owl:Class } UNION { :FunctionalLimitation owl:equivalentClass ?a6 }
+  { :Claimant          a owl:Class } UNION { :Claimant          owl:equivalentClass ?a7 }
+  { :MedicalCondition  a owl:Class } UNION { :MedicalCondition  owl:equivalentClass ?a8 }
+  { :SSR               a owl:Class } UNION { :SSR               owl:equivalentClass ?a9 }
+  { :RFCComponent      a owl:Class } UNION { :RFCComponent      owl:equivalentClass ?a10 }
+  { :DOT               a owl:Class } UNION { :DOT               owl:equivalentClass ?a11 }
+  { :CourtCase         a owl:Class } UNION { :CourtCase         owl:equivalentClass ?a12 }
+  { :EvidenceType      a owl:Class } UNION { :EvidenceType      owl:equivalentClass ?a13 }
+}

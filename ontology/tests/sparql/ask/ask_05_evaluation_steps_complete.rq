@@ -1,0 +1,17 @@
+# ask_05_evaluation_steps_complete.rq
+# Asserts: all five sequential evaluation steps of 20 C.F.R. § 404.1520 are defined.
+# Expected result: true
+#
+# The five-step evaluation is the backbone of disability adjudication; if any step
+# class is missing the sequential branching logic breaks entirely.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  :Step1_SGA                  a owl:Class .
+  :Step2_Severity             a owl:Class .
+  :Step3_ListingsOrEquivalence a owl:Class .
+  :Step4_PastRelevantWork     a owl:Class .
+  :Step5_OtherWork            a owl:Class .
+}

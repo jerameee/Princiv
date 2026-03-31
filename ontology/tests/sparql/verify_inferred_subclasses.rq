@@ -1,0 +1,43 @@
+# verify_inferred_subclasses.rq
+# After running the OWL reasoner (ontology/jena/run-reasoner.sh), this query
+# confirms that key inferred subclass relationships have been materialized.
+#
+# Run this against the TDB2 dataset AFTER loading inferred-triples.ttl:
+#   arq --loc=ontology/jena/tdb2 \
+#       --query=ontology/tests/sparql/verify_inferred_subclasses.rq
+#
+# Expected: at minimum 6 inferred triples covering the authority hierarchy
+# and exertional RFC chain.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?subClass ?superClass ?inferenceType
+WHERE {
+  # Check explicitly declared hierarchy as baseline (will always be present)
+  {
+    VALUES (?subClass ?superClass ?inferenceType) {
+      (:SocialSecurityRuling :AdministrativeGuidance "explicit")
+      (:AdministrativeGuidance :LegalAuthority         "explicit")
+      (:Regulation            :LegalAuthority         "explicit")
+      (:Statute               :LegalAuthority         "explicit")
+      (:SedentaryRFC          :ExertionalRFC          "explicit")
+      (:LightRFC              :ExertionalRFC          "explicit")
+      (:MediumRFC             :ExertionalRFC          "explicit")
+      (:HeavyRFC              :ExertionalRFC          "explicit")
+      (:VeryHeavyRFC          :ExertionalRFC          "explicit")
+    }
+    ?subClass rdfs:subClassOf ?superClass .
+  }
+  UNION
+  # After reasoning: inferred transitive subclass closures
+  {
+    VALUES (?subClass ?superClass ?inferenceType) {
+      (:SocialSecurityRuling :LegalAuthority "inferred-transitive")
+      (:SedentaryRFC         :ResidualFunctionalCapacity "inferred-transitive")
+    }
+    ?subClass rdfs:subClassOf ?superClass .
+  }
+}
+ORDER BY ?inferenceType ?subClass

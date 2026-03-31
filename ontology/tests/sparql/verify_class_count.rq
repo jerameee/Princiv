@@ -1,0 +1,47 @@
+# verify_class_count.rq
+# Confirms all 13 required OWL classes are present in the loaded dataset.
+#
+# Run against a local file:
+#   arq --data=ontology/ssa_domain.ttl --query=ontology/tests/sparql/verify_class_count.rq
+#
+# Run against a Fuseki TDB2 endpoint:
+#   curl -s -G http://localhost:3030/ssa-ontology/sparql \
+#        --data-urlencode query@ontology/tests/sparql/verify_class_count.rq
+#
+# Expected: 13 rows, one per required class.
+# A missing row means that class is absent — check the task 1.1 additions.
+#
+# Acceptance threshold: COUNT = 13
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?class ?label (COUNT(?class) AS ?present)
+WHERE {
+  VALUES (?class) {
+    # Sprint 1 required node types (13 total)
+    (:Listing)
+    (:Regulation)
+    (:Occupation)
+    (:GridRule)
+    (:EvaluationStep)
+    (:FunctionalLimitation)
+    (:Claimant)
+    (:MedicalCondition)
+    (:SSR)
+    (:RFCComponent)
+    (:DOT)
+    (:CourtCase)
+    (:EvidenceType)
+  }
+
+  # Accepts both direct declaration and equivalentClass alias patterns
+  { ?class a owl:Class }
+  UNION
+  { ?class owl:equivalentClass ?any }
+
+  OPTIONAL { ?class rdfs:label ?label }
+}
+GROUP BY ?class ?label
+ORDER BY ?class

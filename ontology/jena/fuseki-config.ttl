@@ -1,0 +1,67 @@
+# fuseki-config.ttl
+# Apache Jena Fuseki 4.x configuration for the SSA Disability Ontology SPARQL endpoint.
+#
+# Usage:
+#   fuseki-server --config=ontology/jena/fuseki-config.ttl
+#
+# SPARQL endpoint (after start):
+#   Query:  http://localhost:3030/ssa-ontology/sparql
+#   Update: http://localhost:3030/ssa-ontology/update
+#   UI:     http://localhost:3030
+
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix tdb2:    <http://jena.apache.org/2016/tdb#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+
+[] rdf:type fuseki:Server .
+
+# ---------------------------------------------------------------------------
+# SPARQL service exposing the TDB2 persistent dataset
+# ---------------------------------------------------------------------------
+<#ssa_ontology_service> rdf:type fuseki:Service ;
+    fuseki:name "ssa-ontology" ;
+
+    # Read-only SPARQL query endpoint
+    fuseki:endpoint [
+        fuseki:operation fuseki:query ;
+        fuseki:name      "sparql"
+    ] ;
+
+    # Alternate query path (some clients use /query)
+    fuseki:endpoint [
+        fuseki:operation fuseki:query ;
+        fuseki:name      "query"
+    ] ;
+
+    # Write / update endpoint (disabled in prod; enabled for CI loading)
+    fuseki:endpoint [
+        fuseki:operation fuseki:update ;
+        fuseki:name      "update"
+    ] ;
+
+    # Graph-store protocol (read)
+    fuseki:endpoint [
+        fuseki:operation fuseki:gsp-r ;
+        fuseki:name      "get"
+    ] ;
+
+    # Graph-store protocol (read-write — for tdbloader alternative)
+    fuseki:endpoint [
+        fuseki:operation fuseki:gsp-rw ;
+        fuseki:name      "data"
+    ] ;
+
+    fuseki:dataset <#tdb2_dataset> ;
+    .
+
+# ---------------------------------------------------------------------------
+# TDB2 persistent dataset
+# Path is relative to the working directory where fuseki-server is launched.
+# Convention: launch from the project root (/path/to/Princiv).
+# ---------------------------------------------------------------------------
+<#tdb2_dataset> rdf:type tdb2:DatasetTDB2 ;
+    tdb2:location "ontology/jena/tdb2" ;
+    .

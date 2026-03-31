@@ -1,0 +1,47 @@
+# verify_property_count.rq
+# Confirms all 16 required OWL object properties are present in the loaded dataset.
+#
+# Run against a local file:
+#   arq --data=ontology/ssa_domain.ttl --query=ontology/tests/sparql/verify_property_count.rq
+#
+# Run against a Fuseki TDB2 endpoint:
+#   curl -s -G http://localhost:3030/ssa-ontology/sparql \
+#        --data-urlencode query@ontology/tests/sparql/verify_property_count.rq
+#
+# Expected: 16 rows.
+# Acceptance threshold: COUNT = 16
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?property ?label ?domain ?range
+WHERE {
+  VALUES (?property) {
+    # Originally present (Task 1.1 baseline)
+    (:interprets)
+    (:supersedes)
+    # Added in Task 1.1.2 (14 new)
+    (:causesSymptom)
+    (:resultsInLimitation)
+    (:mayMeetListing)
+    (:requiresEvidence)
+    (:affectsRFCComponent)
+    (:restrictsToWorkLevel)
+    (:compatibleWithJobs)
+    (:appliesTo)
+    (:resultsInDecision)
+    (:ifYesGoTo)
+    (:ifNoGoTo)
+    (:hasPastRelevantWork)
+    (:protectedBy)
+    (:subjectToPrivilege)
+  }
+
+  ?property a owl:ObjectProperty .
+
+  OPTIONAL { ?property rdfs:label  ?label }
+  OPTIONAL { ?property rdfs:domain ?domain . FILTER (!isBlank(?domain)) }
+  OPTIONAL { ?property rdfs:range  ?range  . FILTER (!isBlank(?range))  }
+}
+ORDER BY ?property
