@@ -1,0 +1,16 @@
+# ask_10_sequential_evaluation_branching_declared.rq
+# Asserts: the ifYesGoTo and ifNoGoTo branching properties are declared, enabling
+# the query layer to traverse the 5-step sequential decision tree.
+# Expected result: true
+#
+# These properties encode the "favorable → proceed to next step" and
+# "unfavorable → skip to outcome" logic of 20 C.F.R. § 404.1520.
+# Without them, no agent can follow the branching structure of the evaluation.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  :ifYesGoTo a owl:ObjectProperty .
+  :ifNoGoTo  a owl:ObjectProperty .
+}

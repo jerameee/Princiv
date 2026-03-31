@@ -1,0 +1,18 @@
+# ask_08_versioned_authority_has_effective_from.rq
+# Asserts: every AuthorityVersion instance has an effectiveFrom date.
+# Expected result: true
+#
+# Temporal versioning is critical — the listing or regulation version that governs
+# a claim depends on the claimant's filing date relative to effectiveFrom/effectiveUntil.
+# A version without an effectiveFrom cannot be placed on the timeline.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+ASK {
+  FILTER NOT EXISTS {
+    ?version a :AuthorityVersion .
+    FILTER NOT EXISTS { ?version :effectiveFrom ?date }
+  }
+}

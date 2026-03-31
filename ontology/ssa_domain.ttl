@@ -1449,7 +1449,7 @@
 # Impairment Properties
 
 :hasBodySystem a owl:ObjectProperty ;
-    rdfs:domain :Impairment ;
+    rdfs:domain :Listing ;
     rdfs:range :BodySystem ;
     rdfs:label "has body system" .
 

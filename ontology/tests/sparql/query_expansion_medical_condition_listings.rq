@@ -1,0 +1,50 @@
+# query_expansion_medical_condition_listings.rq
+# Query Expansion: retrieve all Listing sections reachable from the MedicalCondition class.
+#
+# Purpose (Layer 5 — Query Expansion):
+#   When an agent reasons about a MedicalCondition, this query expands the context
+#   by returning every Listing in the ontology along with its Blue Book body system.
+#   The :mayMeetListing property declares that MedicalCondition instances CAN satisfy
+#   Listing nodes; this query catalogs which Listings (and body systems) are available
+#   for that traversal.
+#
+# Schema-level path:
+#   :MedicalCondition --[:mayMeetListing rdfs:domain]--> :Listing --[:hasBodySystem]--> :BodySystem
+#
+# Usage:
+#   Against a live Fuseki endpoint:
+#     curl -s -G http://localhost:3030/ssa-ontology/sparql \
+#          --data-urlencode query@ontology/tests/sparql/query_expansion_medical_condition_listings.rq
+#
+#   Against a local file (arq):
+#     arq --data=ontology/ssa_domain.ttl \
+#         --query=ontology/tests/sparql/query_expansion_medical_condition_listings.rq
+#
+# Expected: one row per (listing, bodySystem) pair in the ontology.
+#   Baseline: Listing_1_15 / Musculoskeletal must always appear.
+#
+# Runtime parameterization (ABox queries against a populated store):
+#   To expand for a specific condition instance, add a VALUES or FILTER clause:
+#     VALUES ?condition { :SpinalDisorder }
+#     ?condition :mayMeetListing ?listing .
+
+PREFIX :     <http://ssa.gov/disability/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT
+    ?listing         # Listing node (Blue Book entry)
+    ?listingLabel
+    ?bodySystem      # Blue Book chapter / body system
+    ?bodySystemLabel
+WHERE {
+    # ── All Listing instances in the ontology ──────────────────────────────
+    ?listing a :Listing .
+
+    # ── Traverse hasBodySystem to the Blue Book chapter ────────────────────
+    ?listing :hasBodySystem ?bodySystem .
+
+    # ── Optional labels for human-readable output ──────────────────────────
+    OPTIONAL { ?listing    rdfs:label ?listingLabel }
+    OPTIONAL { ?bodySystem rdfs:label ?bodySystemLabel }
+}
+ORDER BY ?listing

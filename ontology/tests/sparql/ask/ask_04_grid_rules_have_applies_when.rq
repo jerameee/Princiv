@@ -1,0 +1,16 @@
+# ask_04_grid_rules_have_applies_when.rq
+# Asserts: every GridRule instance has an appliesWhen restriction.
+# Expected result: true
+#
+# Grid Rules without appliesWhen cannot be matched to a claimant's vocational
+# profile at Step 5.  A missing appliesWhen means the rule is effectively inert.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  FILTER NOT EXISTS {
+    ?rule a :GridRule .
+    FILTER NOT EXISTS { ?rule :appliesWhen ?condition }
+  }
+}

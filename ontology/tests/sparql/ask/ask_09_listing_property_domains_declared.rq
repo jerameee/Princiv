@@ -1,0 +1,21 @@
+# ask_09_listing_property_domains_declared.rq
+# Asserts: key Listing-related properties are declared and have the expected
+# rdfs:domain constraints.
+# Expected result: true
+#
+# hasBodySystem and requiresCriterion are central to query expansion:
+#   hasBodySystem  — links a Listing to its Blue Book chapter (body system)
+#   requiresCriterion — links a Listing to its mandatory/alternative criteria
+# If these properties lack a domain declaration, OWL tooling cannot infer that
+# arbitrary subjects of these properties are Listing instances.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+ASK {
+  :hasBodySystem     a owl:ObjectProperty ;
+                     rdfs:domain :Listing .
+  :requiresCriterion a owl:ObjectProperty ;
+                     rdfs:domain :Listing .
+}

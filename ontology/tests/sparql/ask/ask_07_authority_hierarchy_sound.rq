@@ -1,0 +1,23 @@
+# ask_07_authority_hierarchy_sound.rq
+# Asserts: the binding-force hierarchy (Statute > Regulation > SSR/HALLEX/POMS)
+# is correctly encoded as rdfs:subClassOf chains.
+# Expected result: true
+#
+# If SSR is not a subclass of AdministrativeGuidance, or AdministrativeGuidance
+# is not under LegalAuthority, the reasoner cannot propagate binding-force
+# annotations down the hierarchy.
+
+PREFIX :     <http://ssa.gov/disability/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+ASK {
+  # Statute, Regulation, AdministrativeGuidance are all LegalAuthority
+  :Statute               rdfs:subClassOf :LegalAuthority .
+  :Regulation            rdfs:subClassOf :LegalAuthority .
+  :AdministrativeGuidance rdfs:subClassOf :LegalAuthority .
+
+  # SSR, HALLEX, POMS are specialisations of AdministrativeGuidance
+  :SocialSecurityRuling  rdfs:subClassOf :AdministrativeGuidance .
+  :HALLEX                rdfs:subClassOf :AdministrativeGuidance .
+  :POMS                  rdfs:subClassOf :AdministrativeGuidance .
+}

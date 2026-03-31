@@ -1,0 +1,18 @@
+# ask_06_rfc_exertional_levels_defined.rq
+# Asserts: all five standard exertional RFC levels are defined as OWL classes.
+# Expected result: true
+#
+# These levels (Sedentary → Very Heavy) map directly to the Grid Rule matrix
+# (20 C.F.R. Part 404, Subpart P, Appendix 2).  A missing level breaks
+# vocational-profile matching at Step 5.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  :SedentaryRFC  a owl:Class .
+  :LightRFC      a owl:Class .
+  :MediumRFC     a owl:Class .
+  :HeavyRFC      a owl:Class .
+  :VeryHeavyRFC  a owl:Class .
+}

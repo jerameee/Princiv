@@ -1,0 +1,20 @@
+# ask_03_listing_has_body_system.rq
+# Asserts: every Listing instance in the ontology has a hasBodySystem property value.
+# Expected result: true  (no listing is missing its body system classification)
+#
+# The body system link ties a Listing to the Blue Book chapter (Musculoskeletal,
+# Cardiovascular, etc.) and is required for query expansion to retrieve all
+# listings for a given body system.
+#
+# Uses FILTER NOT EXISTS so the ASK returns TRUE when the invariant holds.
+
+PREFIX :    <http://ssa.gov/disability/ontology#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+ASK {
+  # No listing instance exists that is missing hasBodySystem
+  FILTER NOT EXISTS {
+    ?listing a :Listing .
+    FILTER NOT EXISTS { ?listing :hasBodySystem ?sys }
+  }
+}

@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Jena TDB2 persistent dataset (generated; not committed)
+ontology/jena/tdb2/
+# Reasoner output (generated)
+ontology/jena/inferred-triples.ttl
