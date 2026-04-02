@@ -184,7 +184,7 @@ class TestAC2_PathTraversal:
         RETURN outcome.result AS disposition
         """
         with neo4j_driver.session() as session:
-            row = session.single(query)
+            row = session.run(query).single()
 
         assert row is not None
         assert row["disposition"] == "disabled"

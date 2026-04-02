@@ -104,7 +104,7 @@ MATCH (s2:EvaluationStep {id: "step_2_severity"})
 MATCH (s3:EvaluationStep {id: "step_3_listings"})
 MERGE (s2)-[r:IF_YES_GO_TO]->(s3)
 SET r.outcome = "severe_impairment_established",
-    r.note    = "At least one severe MDI confirmed; evaluation continues to Step 3";
+    r.note    = "At least one severe MDI confirmed - evaluation continues to Step 3";
 
 // Step 2 NO → Not Disabled (no severe MDI; claim denied)
 MATCH (s2:EvaluationStep {id: "step_2_severity"})
@@ -130,7 +130,7 @@ MATCH (s3:EvaluationStep {id: "step_3_listings"})
 MATCH (s4:EvaluationStep {id: "step_4_prw"})
 MERGE (s3)-[r:IF_NO_GO_TO]->(s4)
 SET r.outcome = "does_not_meet_listing",
-    r.note    = "RFC assessment required; evaluation continues to Step 4";
+    r.note    = "RFC assessment required - evaluation continues to Step 4";
 
 
 // --- Step 4 branches ---
@@ -148,7 +148,7 @@ MATCH (s4:EvaluationStep {id: "step_4_prw"})
 MATCH (s5:EvaluationStep {id: "step_5_other_work"})
 MERGE (s4)-[r:IF_NO_GO_TO]->(s5)
 SET r.outcome = "cannot_perform_past_relevant_work",
-    r.note    = "Burden shifts to SSA; evaluation continues to Step 5";
+    r.note    = "Burden shifts to SSA - evaluation continues to Step 5";
 
 
 // --- Step 5 branches ---
