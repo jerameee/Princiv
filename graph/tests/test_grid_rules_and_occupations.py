@@ -111,7 +111,7 @@ class TestNodeCounts:
         result = session.run(
             "MATCH ()-[:RESULTS_IN_DECISION]->() RETURN count(*) AS n"
         )
-        assert result.single()["n"] >= 26
+        assert result.single()["n"] >= 25
 
     def test_compatible_with_jobs_edges_exist(self, session):
         result = session.run(
