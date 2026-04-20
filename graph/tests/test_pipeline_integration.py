@@ -27,7 +27,7 @@ def _gliner_available() -> bool:
     try:
         import gliner  # noqa: F401
         return True
-    except ImportError:
+    except Exception:
         return False
 
 
