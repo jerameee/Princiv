@@ -27,7 +27,7 @@ def _gliner_available() -> bool:
     try:
         import gliner  # noqa: F401
         return True
-    except ImportError:
+    except Exception:
         return False
 
 
@@ -48,7 +48,8 @@ def _spacy_available() -> bool:
 _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     (
         "The claimant alleges disability due to degenerative disc disease beginning March 2022.",
-        {"Medical Condition": ["degenerative disc disease"], "Claimant": ["claimant"]},
+        {"Medical Condition": [
+            "degenerative disc disease"], "Claimant": ["claimant"]},
     ),
     (
         "At Step 1, the ALJ found the claimant was not engaged in substantial gainful activity.",
@@ -60,11 +61,13 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "The claimant's RFC limits him to sedentary work due to chronic back pain and lumbar radiculopathy.",
-        {"RFC Component": ["RFC"], "Claimant": ["claimant"], "Medical Condition": ["back pain"]},
+        {"RFC Component": ["RFC"], "Claimant": ["claimant"],
+            "Medical Condition": ["back pain"]},
     ),
     (
         "Listing 1.15 requires nerve root compression with documented motor loss and sensory deficits.",
-        {"Listing of Impairments": ["Listing 1.15"], "Functional Limitation": ["motor loss"]},
+        {"Listing of Impairments": ["Listing 1.15"],
+            "Functional Limitation": ["motor loss"]},
     ),
     (
         "Grid Rule 201.06 directs a finding of disabled for a claimant of advanced age with limited education.",
@@ -76,7 +79,8 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "At Step 4, the ALJ determined the claimant cannot return to past relevant work as a truck driver.",
-        {"Evaluation Step": ["Step 4"], "Claimant": ["claimant"], "Occupation": ["truck driver"]},
+        {"Evaluation Step": ["Step 4"], "Claimant": [
+            "claimant"], "Occupation": ["truck driver"]},
     ),
     (
         "The vocational expert testified that sedentary jobs exist in significant numbers in the national economy.",
@@ -84,7 +88,8 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "The claimant's lifting limitation prevents her from performing medium or light exertional work.",
-        {"Functional Limitation": ["lifting limitation"], "Claimant": ["claimant"]},
+        {"Functional Limitation": [
+            "lifting limitation"], "Claimant": ["claimant"]},
     ),
     (
         "The treating physician's opinion was given little weight as it was inconsistent with objective findings.",
@@ -92,7 +97,8 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "The claimant meets Listing 12.04 for depressive disorder based on marked limitations in concentration.",
-        {"Listing of Impairments": ["Listing 12.04"], "Claimant": ["claimant"], "Medical Condition": ["depressive disorder"]},
+        {"Listing of Impairments": ["Listing 12.04"], "Claimant": [
+            "claimant"], "Medical Condition": ["depressive disorder"]},
     ),
     (
         "Under 42 U.S.C. \u00a7 423(d), a claimant must be unable to engage in any substantial gainful activity.",
@@ -100,7 +106,8 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "The RFC assessment restricts the claimant to occasional overhead reaching due to rotator cuff tear.",
-        {"RFC Component": ["RFC"], "Claimant": ["claimant"], "Medical Condition": ["rotator cuff tear"]},
+        {"RFC Component": ["RFC"], "Claimant": ["claimant"],
+            "Medical Condition": ["rotator cuff tear"]},
     ),
     (
         "At Step 5, the burden shifts to the Commissioner to show that other work exists in significant numbers.",
@@ -108,7 +115,8 @@ _TEST_DOCUMENTS: list[tuple[str, dict[str, list[str]]]] = [
     ),
     (
         "The ALJ failed to evaluate the claimant's fibromyalgia under SSR 12-2p.",
-        {"Medical Condition": ["fibromyalgia"], "Social Security Ruling": ["SSR 12-2p"]},
+        {"Medical Condition": ["fibromyalgia"],
+            "Social Security Ruling": ["SSR 12-2p"]},
     ),
     (
         "The claimant's date last insured was December 31, 2020; onset was alleged prior to that date.",
@@ -180,8 +188,10 @@ class TestOntologyGate:
         )
         doc = Document(content="test", source_type="test")
         entities = [
-            ExtractedEntity(entity_type=EntityType.CASE, properties={"id": "case_1"}),
-            ExtractedEntity(entity_type=EntityType.LEGAL_CONCEPT, properties={"id": "lc_1"}),
+            ExtractedEntity(entity_type=EntityType.CASE,
+                            properties={"id": "case_1"}),
+            ExtractedEntity(entity_type=EntityType.LEGAL_CONCEPT,
+                            properties={"id": "lc_1"}),
         ]
         rel = ExtractedRelationship(
             relationship_type=RelationshipType.ADDRESSES,
@@ -212,7 +222,8 @@ class TestOntologyGate:
         )
         result = gate.validate(extraction)
         assert result.metrics.rejected_count == 1
-        assert any("undeclared_predicate" in r for r in result.metrics.rejection_reasons)
+        assert any(
+            "undeclared_predicate" in r for r in result.metrics.rejection_reasons)
 
     def test_invalid_subject_type_rejected(self, gate):
         from layers.ingestion import Document, EntityType, ExtractionResult, ExtractedEntity
@@ -221,7 +232,8 @@ class TestOntologyGate:
         bad_entity.properties = {"id": "bad_1"}
         bad_entity.entity_type.value = "TotallyFakeClass"
         good_entity = ExtractedEntity(
-            entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={"id": "fl_1"}
+            entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={
+                "id": "fl_1"}
         )
         bad_rel = MagicMock()
         bad_rel.relationship_type.value = "RESULTS_IN_LIMITATION"
@@ -233,7 +245,8 @@ class TestOntologyGate:
         )
         result = gate.validate(extraction)
         assert result.metrics.rejected_count == 1
-        assert any("invalid_subject_type" in r for r in result.metrics.rejection_reasons)
+        assert any(
+            "invalid_subject_type" in r for r in result.metrics.rejection_reasons)
 
     def test_domain_violation_rejected(self, gate):
         from layers.ingestion import (
@@ -242,8 +255,10 @@ class TestOntologyGate:
         doc = Document(content="test", source_type="test")
         # resultsInLimitation domain is Impairment; Claimant is not in that hierarchy
         entities = [
-            ExtractedEntity(entity_type=EntityType.CLAIMANT, properties={"id": "cl_1"}),
-            ExtractedEntity(entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={"id": "fl_1"}),
+            ExtractedEntity(entity_type=EntityType.CLAIMANT,
+                            properties={"id": "cl_1"}),
+            ExtractedEntity(
+                entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={"id": "fl_1"}),
         ]
         bad_rel = MagicMock()
         bad_rel.relationship_type.value = "RESULTS_IN_LIMITATION"
@@ -254,7 +269,8 @@ class TestOntologyGate:
         )
         result = gate.validate(extraction)
         assert result.metrics.rejected_count == 1
-        assert any("domain_violation" in r for r in result.metrics.rejection_reasons)
+        assert any(
+            "domain_violation" in r for r in result.metrics.rejection_reasons)
 
     def test_range_violation_rejected(self, gate):
         from layers.ingestion import (
@@ -263,8 +279,10 @@ class TestOntologyGate:
         doc = Document(content="test", source_type="test")
         # resultsInLimitation range is FunctionalLimitation; Listing is not in that hierarchy
         entities = [
-            ExtractedEntity(entity_type=EntityType.MEDICAL_CONDITION, properties={"id": "mc_1"}),
-            ExtractedEntity(entity_type=EntityType.LISTING, properties={"id": "l_1"}),
+            ExtractedEntity(
+                entity_type=EntityType.MEDICAL_CONDITION, properties={"id": "mc_1"}),
+            ExtractedEntity(entity_type=EntityType.LISTING,
+                            properties={"id": "l_1"}),
         ]
         bad_rel = MagicMock()
         bad_rel.relationship_type.value = "RESULTS_IN_LIMITATION"
@@ -275,7 +293,8 @@ class TestOntologyGate:
         )
         result = gate.validate(extraction)
         assert result.metrics.rejected_count == 1
-        assert any("range_violation" in r for r in result.metrics.rejection_reasons)
+        assert any(
+            "range_violation" in r for r in result.metrics.rejection_reasons)
 
     def test_100_percent_rejection_of_invalid_predicates(self, gate):
         """Gate must reject 100% of triples with undeclared predicates."""
@@ -330,7 +349,8 @@ class TestPipelineWiring:
             )
             for et in EntityType
         ]
-        extraction = ExtractionResult(extractor_id="test", document=doc, entities=entities)
+        extraction = ExtractionResult(
+            extractor_id="test", document=doc, entities=entities)
         nodes = _entities_to_nodes(extraction)
 
         valid_labels = {et.value for et in EntityType}
@@ -347,8 +367,10 @@ class TestPipelineWiring:
         )
         doc = Document(content="test", source_type="test")
         entities = [
-            ExtractedEntity(entity_type=EntityType.MEDICAL_CONDITION, properties={"id": "mc_1"}),
-            ExtractedEntity(entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={"id": "fl_1"}),
+            ExtractedEntity(
+                entity_type=EntityType.MEDICAL_CONDITION, properties={"id": "mc_1"}),
+            ExtractedEntity(
+                entity_type=EntityType.FUNCTIONAL_LIMITATION, properties={"id": "fl_1"}),
         ]
         extraction = ExtractionResult(
             extractor_id="test", document=doc, entities=entities,
@@ -374,7 +396,8 @@ class TestPipelineWiring:
             ExtractedEntity(entity_type=EntityType.MEDICAL_CONDITION,
                             properties={"id": "mc_ddd", "text": "duplicate"}),
         ]
-        extraction = ExtractionResult(extractor_id="test", document=doc, entities=entities)
+        extraction = ExtractionResult(
+            extractor_id="test", document=doc, entities=entities)
         nodes = _entities_to_nodes(extraction)
         assert len(nodes) == 1
         assert nodes[0].properties["text"] == "first"
@@ -413,7 +436,8 @@ class TestExtractionRecall:
                 continue
             doc = Document(content=text, source_type="test")
             result = extractor.extract(doc)
-            extracted_texts = {e.properties.get("text", "").lower() for e in result.entities}
+            extracted_texts = {e.properties.get(
+                "text", "").lower() for e in result.entities}
 
             for _label, mentions in expected.items():
                 for mention in mentions:
