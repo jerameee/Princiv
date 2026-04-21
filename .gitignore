@@ -210,3 +210,5 @@ __marimo__/
 ontology/jena/tdb2/
 # Reasoner output (generated)
 ontology/jena/inferred-triples.ttl
+.DS_Store
+.claude/

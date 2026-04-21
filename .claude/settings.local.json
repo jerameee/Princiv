@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(\\\\\n  NEO4J_URI=\"neo4j+s://2c774805.databases.neo4j.io\" \\\\\n  NEO4J_USER=\"neo4j\" \\\\\n  NEO4J_PASSWORD=\"SVZpwyESmS9GV7CtwwyO8XSL4v6enDgTJQWFqIL1tDk\" \\\\\n  python3 -m pytest graph/tests/test_evaluation_steps.py -v 2>&1)",
-      "Bash(NEO4J_URI=\"neo4j+s://2c774805.databases.neo4j.io\" \\\\\n  NEO4J_USER=\"neo4j\" \\\\\n  NEO4J_PASSWORD=\"SVZpwyESmS9GV7CtwwyO8XSL4v6enDgTJQWFqIL1tDk\" \\\\\n  python3 -m pytest /Users/jeremyjones/Princiv/graph/tests/test_evaluation_steps.py -v 2>&1)",
-      "Bash(du -sh /Users/jeremyjones/Princiv/*)"
-    ]
-  }
-}
