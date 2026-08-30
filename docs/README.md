@@ -18,28 +18,28 @@ Read the briefing first. Everything else assumes it.
 
 ### Phase 1 — Planning, requirements, design
 
-**Project Initiation and Planning**
+**Project Initiation and Planning** — *Set A, awaiting review*
 
 | Document | Status |
 |---|---|
-| [`phase-1/01-project-charter.md`](phase-1/01-project-charter.md) | Pending |
-| [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Pending |
-| [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Pending |
+| [`phase-1/01-project-charter.md`](phase-1/01-project-charter.md) | Draft |
+| [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Draft |
+| [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Draft |
 
 **Requirements and Analysis**
 
 | Document | Status |
 |---|---|
-| [`phase-1/04-business-requirements-document.md`](phase-1/04-business-requirements-document.md) | Pending |
-| [`phase-1/05-software-requirements-spec.md`](phase-1/05-software-requirements-spec.md) | Pending |
+| `phase-1/04-business-requirements-document.md` | Pending |
+| `phase-1/05-software-requirements-spec.md` | Pending |
 
 **Architecture and Design**
 
 | Document | Status |
 |---|---|
-| [`phase-1/06-system-architecture-document.md`](phase-1/06-system-architecture-document.md) | Pending |
-| [`phase-1/07-technical-design-document.md`](phase-1/07-technical-design-document.md) | Pending |
-| [`phase-1/08-uiux-wireframes.md`](phase-1/08-uiux-wireframes.md) | Pending |
+| `phase-1/06-system-architecture-document.md` | Pending |
+| `phase-1/07-technical-design-document.md` | Pending |
+| `phase-1/08-uiux-wireframes.md` | Pending |
 
 ### Phase 2 — QA, deployment, maintenance
 
