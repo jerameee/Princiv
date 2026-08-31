@@ -18,13 +18,13 @@ Read the briefing first. Everything else assumes it.
 
 ### Phase 1 — Planning, requirements, design
 
-**Project Initiation and Planning** — *Set A, awaiting review*
+**Project Initiation and Planning** — *Set A, approved*
 
 | Document | Status |
 |---|---|
-| [`phase-1/01-project-charter.md`](phase-1/01-project-charter.md) | Draft |
-| [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Draft |
-| [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Draft |
+| [`phase-1/01-project-charter.md`](phase-1/01-project-charter.md) | Approved |
+| [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Approved |
+| [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Approved |
 
 **Requirements and Analysis** — *Set B, awaiting review*
 
