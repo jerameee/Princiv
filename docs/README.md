@@ -26,20 +26,24 @@ Read the briefing first. Everything else assumes it.
 | [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Approved |
 | [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Approved |
 
-**Requirements and Analysis** — *Set B, awaiting review*
+**Requirements and Analysis** — *Set B, approved*
 
 | Document | Status |
 |---|---|
-| [`phase-1/04-business-requirements-document.md`](phase-1/04-business-requirements-document.md) | Draft |
-| [`phase-1/05-software-requirements-spec.md`](phase-1/05-software-requirements-spec.md) | Draft |
+| [`phase-1/04-business-requirements-document.md`](phase-1/04-business-requirements-document.md) | Approved |
+| [`phase-1/05-software-requirements-spec.md`](phase-1/05-software-requirements-spec.md) | Approved |
 
-**Architecture and Design**
+**Architecture and Design** — *Set C, awaiting review*
 
 | Document | Status |
 |---|---|
-| `phase-1/06-system-architecture-document.md` | Pending |
-| `phase-1/07-technical-design-document.md` | Pending |
-| `phase-1/08-uiux-wireframes.md` | Pending |
+| [`phase-1/06-system-architecture-document.md`](phase-1/06-system-architecture-document.md) | Draft |
+| [`phase-1/07-technical-design-document.md`](phase-1/07-technical-design-document.md) | Draft |
+| [`phase-1/08-uiux-wireframes.md`](phase-1/08-uiux-wireframes.md) | Draft |
+
+### Diagrams
+
+Diagram sources: [`diagrams/`](diagrams/) — six Excalidraw diagrams supporting Set C.
 
 ### Phase 2 — QA, deployment, maintenance
 
