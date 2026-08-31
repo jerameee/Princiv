@@ -26,12 +26,12 @@ Read the briefing first. Everything else assumes it.
 | [`phase-1/02-business-case.md`](phase-1/02-business-case.md) | Draft |
 | [`phase-1/03-project-management-plan.md`](phase-1/03-project-management-plan.md) | Draft |
 
-**Requirements and Analysis**
+**Requirements and Analysis** — *Set B, awaiting review*
 
 | Document | Status |
 |---|---|
-| `phase-1/04-business-requirements-document.md` | Pending |
-| `phase-1/05-software-requirements-spec.md` | Pending |
+| [`phase-1/04-business-requirements-document.md`](phase-1/04-business-requirements-document.md) | Draft |
+| [`phase-1/05-software-requirements-spec.md`](phase-1/05-software-requirements-spec.md) | Draft |
 
 **Architecture and Design**
 
