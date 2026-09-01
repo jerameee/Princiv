@@ -33,13 +33,13 @@ Read the briefing first. Everything else assumes it.
 | [`phase-1/04-business-requirements-document.md`](phase-1/04-business-requirements-document.md) | Approved |
 | [`phase-1/05-software-requirements-spec.md`](phase-1/05-software-requirements-spec.md) | Approved |
 
-**Architecture and Design** — *Set C, awaiting review*
+**Architecture and Design** — *Set C, approved*
 
 | Document | Status |
 |---|---|
-| [`phase-1/06-system-architecture-document.md`](phase-1/06-system-architecture-document.md) | Draft |
-| [`phase-1/07-technical-design-document.md`](phase-1/07-technical-design-document.md) | Draft |
-| [`phase-1/08-uiux-wireframes.md`](phase-1/08-uiux-wireframes.md) | Draft |
+| [`phase-1/06-system-architecture-document.md`](phase-1/06-system-architecture-document.md) | Approved |
+| [`phase-1/07-technical-design-document.md`](phase-1/07-technical-design-document.md) | Approved |
+| [`phase-1/08-uiux-wireframes.md`](phase-1/08-uiux-wireframes.md) | Approved |
 
 ### Diagrams
 
@@ -47,7 +47,23 @@ Diagram sources: [`diagrams/`](diagrams/) — six Excalidraw diagrams supporting
 
 ### Phase 2 — QA, deployment, maintenance
 
-Not started. Begins after Phase 1 is approved. Will cover: Test Plan, Test Cases, Defect Tracking Log, Deployment Plan, Release Notes, User Manuals & Guides.
+**Quality Assurance and Testing** — *awaiting review*
+
+| Document | Status |
+|---|---|
+| [`phase-2/09-test-plan.md`](phase-2/09-test-plan.md) | Draft |
+| [`phase-2/10-test-cases.md`](phase-2/10-test-cases.md) | Draft |
+| [`phase-2/11-defect-tracking-log.md`](phase-2/11-defect-tracking-log.md) | **Living document** |
+
+**Deployment and Maintenance**
+
+| Document | Status | Timing |
+|---|---|---|
+| `phase-2/12-deployment-plan.md` | Pending | Phase 2 |
+| `phase-2/13-release-notes.md` | Pending | Post-MVP, per release |
+| `phase-2/14-user-guides.md` | Pending | Installation guide in M1; remainder post-MVP |
+
+The defect log supersedes Part VIII of the technical briefing as the authoritative defect register. The briefing remains readable as a point-in-time analysis; new findings go in the log.
 
 ---
 

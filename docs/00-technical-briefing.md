@@ -684,6 +684,8 @@ That last row is worth noting explicitly: **Task 1.7.1 as originally specified i
 
 # Part VIII — Debt register
 
+> **Superseded.** This section is a point-in-time analysis, accurate as of the Phase 1 review. It is **no longer the place to record new findings** — the authoritative, continuously-updated register is [`phase-2/11-defect-tracking-log.md`](phase-2/11-defect-tracking-log.md), which carries these same `D` identifiers plus resolution plans, verification steps, and status. One further defect (`D17`) has been recorded there since this was written.
+
 Ordered by severity. Each entry gives location, impact, and blast radius.
 
 ## Severity 1 — Silently wrong
