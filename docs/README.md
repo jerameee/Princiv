@@ -55,11 +55,11 @@ Diagram sources: [`diagrams/`](diagrams/) — six Excalidraw diagrams supporting
 | [`phase-2/10-test-cases.md`](phase-2/10-test-cases.md) | Draft |
 | [`phase-2/11-defect-tracking-log.md`](phase-2/11-defect-tracking-log.md) | **Living document** |
 
-**Deployment and Maintenance**
+**Deployment and Maintenance** — *deployment plan awaiting review*
 
 | Document | Status | Timing |
 |---|---|---|
-| `phase-2/12-deployment-plan.md` | Pending | Phase 2 |
+| [`phase-2/12-deployment-plan.md`](phase-2/12-deployment-plan.md) | Draft | — |
 | `phase-2/13-release-notes.md` | Pending | Post-MVP, per release |
 | `phase-2/14-user-guides.md` | Pending | Installation guide in M1; remainder post-MVP |
 

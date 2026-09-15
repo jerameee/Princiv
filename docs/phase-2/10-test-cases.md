@@ -501,6 +501,22 @@ Run conformance after each.
 
 ---
 
+#### TC-DATA-02 · Seed loaders fail visibly when run out of order
+**Level** Integration · **Traces** D18, `NFR-26` · **Milestone** M1 · **Status** ○
+
+**Precondition.** Neo4j reachable and empty. Schema applied.
+**Steps.**
+1. Load `load_grid_rules_and_occupations.cypher` **before** `load_mvp_regulatory_content.cypher`.
+2. Query for `GOVERNS` edges from `WorkLevel` and `RESULTS_IN_DECISION` edges to `EvaluationOutcome`.
+3. Run the validation queries.
+4. Reset. Load in the correct order — evaluation steps, regulatory content, grid rules. Repeat steps 2 and 3.
+
+**Expected.** The wrong order produces zero `GOVERNS` and zero `RESULTS_IN_DECISION` edges, and the validation queries **fail**. The correct order produces both edge sets and the validation queries pass.
+
+> The point of this case is that the wrong order currently produces *no error at all* — `MATCH` finds nothing, `MERGE` never runs, loading reports success. The test makes that silence detectable.
+
+---
+
 ## 13. Documentation — `TC-DOC`
 
 #### TC-DOC-01 · Documented counts and examples are correct
@@ -552,6 +568,7 @@ Every S1 and S2 defect has a regression case, per `TO-2`.
 | D15 | S3 | TC-CI-01 | M1 |
 | D16 | S3 | TC-DOC-01, TC-ENG-03 | M1 |
 | D17 | S3 | TC-PIPE-01 | M4 |
+| D18 | S2 | TC-DATA-02 | M1 |
 
 ### 14.3 Summary
 
@@ -559,22 +576,22 @@ Every S1 and S2 defect has a regression case, per `TO-2`.
 |---|---|
 | ✅ Exist today and pass | 15 |
 | ⚠ Exist but currently fail | 8 |
-| ○ To be written | 30 |
-| **Total** | **53** |
+| ○ To be written | 31 |
+| **Total** | **54** |
 
 | Milestone | Cases |
 |---|---|
-| M1 | 27 |
+| M1 | 28 |
 | M2 | 14 |
 | M3 | 2 |
 | M4 | 10 |
-| **Total** | **53** |
+| **Total** | **54** |
 
 Two things are worth reading off these numbers.
 
 **The eight failing cases are the S1 and S2 defects, written as tests.** They are specified before their fixes exist, which is deliberate — per Test Plan §8, a test written before the fix verifies the *defect*, and that is what proves the test checks something real.
 
-**M1 carries 27 cases, more than any other milestone.** That is not because M1 does the most work — it does the least. It is because M1 establishes CI and the environment, and most existing behaviour gets its first test there. The effort is in wiring, not in authoring 27 novel cases.
+**M1 carries 28 cases, more than any other milestone.** That is not because M1 does the most work — it does the least. It is because M1 establishes CI and the environment, and most existing behaviour gets its first test there. The effort is in wiring, not in authoring 27 novel cases.
 
 ---
 

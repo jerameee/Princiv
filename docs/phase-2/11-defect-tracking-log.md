@@ -14,30 +14,30 @@ This is the authoritative register of known defects. It supersedes Part VIII of 
 
 ### 1.1 On the identifiers
 
-Defects retain the `D1`–`D16` identifiers assigned in the briefing rather than being renumbered into a new scheme.
+`D1`–`D16` retain the identifiers assigned in the briefing rather than being renumbered into a new scheme. Those identifiers are already referenced roughly forty times across the Project Charter, Project Management Plan, System Architecture Document, and Technical Design Document; renumbering would break every one of those references for no gain.
 
-Those identifiers are already referenced roughly forty times across the Project Charter, Project Management Plan, System Architecture Document, and Technical Design Document. Renumbering would break every one of those references for no gain. New defects continue the sequence from `D17`.
+`D17` and `D18` were found after the briefing — while writing the Technical Design Document and the Deployment Plan respectively. New defects continue the sequence from `D19`.
 
 ---
 
 ## 2. Dashboard
 
-*Last updated: at Phase 2 authoring. No remediation work has begun.*
+*Last updated: Deployment Plan authoring. No remediation work has begun.*
 
 ### By severity
 
 | Severity | Count | Open | In Progress | Fixed | Verified |
 |---|---|---|---|---|---|
 | **S1 — Silently wrong** | 3 | 3 | 0 | 0 | 0 |
-| **S2 — Structural** | 7 | 7 | 0 | 0 | 0 |
+| **S2 — Structural** | 8 | 8 | 0 | 0 | 0 |
 | **S3 — Hygiene** | 7 | 7 | 0 | 0 | 0 |
-| **Total** | **17** | **17** | **0** | **0** | **0** |
+| **Total** | **18** | **18** | **0** | **0** | **0** |
 
 ### By milestone
 
 | Milestone | Defects | IDs |
 |---|---|---|
-| **M1** Foundation & Hygiene | 5 | D1, D11, D13, D15, D16 |
+| **M1** Foundation & Hygiene | 6 | D1, D11, D13, D15, D16, D18 |
 | **M2** Domain-Pack Refactor | 5 | D4, D6, D7, D8, D12 |
 | **M3** Title IX Validation | 0 | — |
 | **M4** Working Vertical Slice | 7 | D2, D3, D5, D9, D10, D14, D17 |
@@ -466,6 +466,38 @@ No counter, no log, no signal. This is the only place in the pipeline where data
 **Resolution plan.** Add a counter to `PipelineResult` and log at `WARNING` with the offending references.
 
 **Verification.** A test supplies a relationship with a dangling reference and asserts it is counted, not silently dropped. See `TC-PIPE-01`.
+
+---
+
+#### D18 · Seed loader order is an undocumented constraint that fails silently
+
+| Field | Value |
+|---|---|
+| **Severity** | S2 |
+| **Status** | Open |
+| **Component** | Princiv · seed data |
+| **Location** | `graph/seed_data/load_grid_rules_and_occupations.cypher:266,277,284`; `graph/seed_data/load_mvp_regulatory_content.cypher`; `CLAUDE.md:84-92` |
+| **Violates** | `NFR-26` |
+| **Milestone** | M1 |
+
+**Description.** The three SSDI seed loaders must run in a specific order, and that order is documented nowhere:
+
+| Label | Created by | Consumed by |
+|---|---|---|
+| `EvaluationOutcome` | `load_evaluation_steps` | `load_mvp_regulatory_content`, `load_grid_rules_and_occupations` |
+| `WorkLevel` | `load_mvp_regulatory_content` | `load_grid_rules_and_occupations` |
+
+The order is therefore forced: **evaluation steps → regulatory content → grid rules.** Nothing in the filenames, the file headers, or `CLAUDE.md` says so. `CLAUDE.md` documents a different sequence entirely, loading the contract-law seed file instead (D11).
+
+**Impact.** The dependent clauses are all `MATCH … MERGE`. A `MATCH` that finds nothing yields zero rows, so the `MERGE` never executes — **no error, no warning, no row count to notice.** Loading grid rules before regulatory content produces a graph that appears populated but is missing every `GOVERNS` edge from `WorkLevel` and every `RESULTS_IN_DECISION` edge to `EvaluationOutcome`. Those are the exact hops `STEP5_OTHER_WORK` and `MEDEVOC_CHAIN` traverse.
+
+Classified S2 rather than S1 because it requires operator error to trigger and the validation queries would catch it. But the failure mode itself is S1-shaped — the same silent `MATCH`-miss pattern as D9.
+
+**Detection.** Found while writing the Deployment Plan, by tracing label provenance across the loaders to verify a claimed ordering. **The claimed ordering was wrong**, which is how the constraint surfaced.
+
+**Resolution plan.** Three parts. Document the order and its rationale in `CLAUDE.md` alongside the D11 correction. Add a header comment to each loader naming its prerequisites. Longer term, make the dependency self-enforcing — each loader asserts its prerequisites exist and fails loudly if not, rather than relying on the operator.
+
+**Verification.** Load the files in the wrong order into a clean graph and assert the validation queries fail. Load in the correct order and assert they pass. See `TC-DATA-02`.
 
 ---
 
